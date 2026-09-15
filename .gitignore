@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.env
+.env.local
+*.log
+.vscode/
+.netlify/
+~$*.docx
+# Working documents stay out of the repo — Netlify publishes the repo root
+*.docx
