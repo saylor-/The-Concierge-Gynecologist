@@ -46,7 +46,7 @@
     <a class="wordmark" href="/">The Concierge Gynecologist</a>
 
     <div class="site-header__utility site-header__utility--right">
-      <a class="utility-link utility-link--secondary" href="/inquire/#updates" data-open-inquire="updates">Stay in touch</a>
+      <a class="utility-link utility-link--secondary" href="/stay-in-touch/" data-open-inquire="updates">Stay in touch</a>
       <a class="utility-link" href="/inquire/" data-open-inquire>Inquire</a>
     </div>
   </div>
@@ -196,6 +196,7 @@
       <p class="eyebrow">Contact</p>
       <ul class="site-footer__list">
         <li><a href="/inquire/" data-open-inquire>Inquire</a></li>
+        <li><a href="/stay-in-touch/" data-open-inquire="updates">Stay in touch</a></li>
         <li><a href="mailto:contact@laurenharringtonmd.com">contact@laurenharringtonmd.com</a></li>
         <li>Denver, Colorado</li>
       </ul>
@@ -211,79 +212,83 @@
 <!-- /partial:footer -->
 
 <!-- partial:inquire-panel -->
+<!-- One panel, two independent modes. [data-open-inquire] opens the inquiry
+     form; [data-open-inquire="updates"] opens the sign-up. Only one is ever
+     shown — they are separate forms, never stacked. See script.js. -->
 <div class="inquire-panel" data-inquire-panel inert>
   <div class="inquire-panel__backdrop" data-close-inquire></div>
 
-  <div class="inquire-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+  <div class="inquire-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="panel-inquiry-title">
     <button class="inquire-panel__close" type="button" data-close-inquire>
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><path d="M1 1l16 16M17 1L1 17"/></svg>
       <span class="visually-hidden">Close</span>
     </button>
 
-    <p class="eyebrow">Inquire</p>
-    <h2 class="title" id="panel-title">Want to know more?</h2>
-    <p class="lede">Let’s stay in touch.</p>
+    <section class="inquire-panel__mode" data-panel-mode="inquiry">
+      <p class="eyebrow">Inquire</p>
+      <h2 class="title" id="panel-inquiry-title">Want to know more?</h2>
+      <p class="lede">Send a note and Dr. Harrington’s office will be in touch.</p>
 
-    <form class="form" name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-form>
-      <input type="hidden" name="form-name" value="inquiry">
-      <p class="visually-hidden"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <form class="form" name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-form>
+        <input type="hidden" name="form-name" value="inquiry">
+        <p class="visually-hidden"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
-      <div class="form__row">
-        <div class="field">
-          <label for="panel-first-name">First name</label>
-          <input id="panel-first-name" name="first-name" autocomplete="given-name" required data-panel-focus="inquiry">
+        <div class="form__row">
+          <div class="field">
+            <label for="panel-first-name">First name</label>
+            <input id="panel-first-name" name="first-name" autocomplete="given-name" required data-panel-focus>
+          </div>
+          <div class="field">
+            <label for="panel-last-name">Last name</label>
+            <input id="panel-last-name" name="last-name" autocomplete="family-name" required>
+          </div>
         </div>
         <div class="field">
-          <label for="panel-last-name">Last name</label>
-          <input id="panel-last-name" name="last-name" autocomplete="family-name" required>
+          <label for="panel-email">Email address</label>
+          <input id="panel-email" name="email" type="email" autocomplete="email" required>
         </div>
-      </div>
-      <div class="field">
-        <label for="panel-email">Email address</label>
-        <input id="panel-email" name="email" type="email" autocomplete="email" required>
-      </div>
-      <div class="field">
-        <label for="panel-phone">Phone number <span class="field__optional">(optional)</span></label>
-        <input id="panel-phone" name="phone" type="tel" autocomplete="tel">
-      </div>
-      <div class="field">
-        <label for="panel-message">Message</label>
-        <textarea id="panel-message" name="message" rows="4"></textarea>
-      </div>
-      <label class="checkbox">
-        <input type="checkbox" name="updates-opt-in" value="yes">
-        <span>I’d like to receive occasional updates — new partnerships, availability, and practice news.</span>
-      </label>
-      <p class="form__note">Please don’t include personal medical details. This form isn’t monitored for urgent needs. If you’re experiencing a medical emergency, call 911.</p>
-      <div class="form__actions">
-        <button class="button" type="submit">Send inquiry</button>
-        <p class="form__status" role="status" aria-live="polite" data-form-status></p>
-      </div>
-    </form>
+        <div class="field">
+          <label for="panel-phone">Phone number <span class="field__optional">(optional)</span></label>
+          <input id="panel-phone" name="phone" type="tel" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label for="panel-message">Message</label>
+          <textarea id="panel-message" name="message" rows="4"></textarea>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" name="updates-opt-in" value="yes">
+          <span>I’d like to receive occasional updates — new partnerships, availability, and practice news.</span>
+        </label>
+        <p class="form__note">Please don’t include personal medical details. This form isn’t monitored for urgent needs. If you’re experiencing a medical emergency, call 911.</p>
+        <div class="form__actions">
+          <button class="button" type="submit">Send inquiry</button>
+          <p class="form__status" role="status" aria-live="polite" data-form-status></p>
+        </div>
+      </form>
+    </section>
 
-    <div class="inquire-panel__divider"></div>
+    <section class="inquire-panel__mode" data-panel-mode="updates" hidden>
+      <p class="eyebrow">Stay in touch</p>
+      <h2 class="title" id="panel-updates-title">Practice updates</h2>
+      <p class="lede">New partnerships, availability, and practice news.</p>
 
-    <div class="inquire-panel__updates">
-      <p class="eyebrow">Practice updates</p>
-      <h3 class="heading heading--sm">Stay in the loop</h3>
-      <p>New partnerships, availability, and practice news. Occasional, never noisy.</p>
       <form class="form" name="updates" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-form data-success="You’re on the list. Thank you.">
         <input type="hidden" name="form-name" value="updates">
         <p class="visually-hidden"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
         <div class="field">
           <label for="panel-updates-name">Name</label>
-          <input id="panel-updates-name" name="name" autocomplete="name" required data-panel-focus="updates">
+          <input id="panel-updates-name" name="name" autocomplete="name" required data-panel-focus>
         </div>
         <div class="field">
           <label for="panel-updates-email">Email</label>
           <input id="panel-updates-email" name="email" type="email" autocomplete="email" required>
         </div>
         <div class="form__actions">
-          <button class="button button--ghost" type="submit">Subscribe</button>
+          <button class="button" type="submit">Subscribe</button>
           <p class="form__status" role="status" aria-live="polite" data-form-status></p>
         </div>
       </form>
-    </div>
+    </section>
   </div>
 </div>
 <!-- /partial:inquire-panel -->

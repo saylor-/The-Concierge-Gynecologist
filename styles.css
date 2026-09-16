@@ -248,6 +248,10 @@ ul, ol { padding: 0; }
 .button--light { background: var(--ivory); border-color: var(--ivory); color: var(--espresso); }
 .button--light:hover { background: var(--blush); border-color: var(--blush); }
 
+/* Outlined button for use over photography or video */
+.button--ghost-light { background: transparent; border-color: rgba(255, 255, 252, 0.55); color: var(--ivory); }
+.button--ghost-light:hover { background: var(--ivory); border-color: var(--ivory); color: var(--espresso); }
+
 .button-row { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-top: 36px; }
 
 .text-link {
@@ -323,8 +327,9 @@ ul, ol { padding: 0; }
               border-color var(--duration) var(--ease);
 }
 
-/* Home: transparent over the hero until scrolled, hovered, or menu open */
-.page-home .site-header:not(.is-scrolled):not(.is-menu-open):not(:hover):not(:focus-within) {
+/* Pages that open with full-bleed media: transparent header over it until
+   scrolled, hovered, or menu open (body needs class .has-hero-media) */
+.has-hero-media .site-header:not(.is-scrolled):not(.is-menu-open):not(:hover):not(:focus-within) {
   background: transparent;
   color: var(--ivory);
   border-color: rgba(255, 255, 252, 0.22);
@@ -467,21 +472,41 @@ ul, ol { padding: 0; }
   color: var(--ivory);
 }
 .hero__slides { position: absolute; inset: 0; }
+/* Cross-dissolve: the incoming clip fades in ON TOP of the outgoing one,
+   which is held at full opacity until the fade ends. Fading both at once
+   dips the hero toward the background colour mid-transition, and that dip
+   is what reads as a flash. JS adds .is-leaving for the fade duration. */
 .hero__slide {
   position: absolute;
   inset: 0;
+  z-index: 0;
   opacity: 0;
-  transition: opacity 1.2s var(--ease);
+  will-change: opacity;
+  transition: opacity 0.8s ease-in-out;
 }
-.hero__slide.is-active { opacity: 1; }
+.hero__slide.is-active { opacity: 1; z-index: 2; }
+.hero__slide.is-leaving { opacity: 1; z-index: 1; transition: none; }
 .hero__slide video,
-.hero__slide img { width: 100%; height: 100%; object-fit: cover; }
+.hero__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 7s linear;
+}
+/* Slow drift, so a 2-second clip never feels like a static cut */
+.hero__slide.is-active video,
+.hero__slide.is-active img { transform: scale(1.05); }
 .hero__slide .placeholder__label { left: auto; right: var(--gutter); bottom: auto; top: calc(var(--header-h) + 20px); }
 
+/* Layering inside the hero: clips 0–2, scrim 3, headline 4. The active clip
+   is lifted above its siblings for the cross-dissolve, so the scrim and the
+   headline have to sit above all of them. */
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 3;
   pointer-events: none;
   background: linear-gradient(to bottom,
     rgba(31, 23, 17, 0.45) 0%,
@@ -494,11 +519,15 @@ ul, ol { padding: 0; }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: clamp(48px, 9vh, 96px);
-  z-index: 1;
+  bottom: clamp(96px, 20vh, 220px);
+  z-index: 4;
   padding-inline: var(--gutter);
   text-align: center;
 }
+.hero__cta { margin-top: clamp(24px, 4vh, 40px); }
+.hero__cta svg { width: 13px; height: 17px; }
+
+.scroll-target { scroll-margin-top: calc(var(--header-h) + 24px); }
 
 /* ── Home: statement ────────────────────────────────────────────────────── */
 .statement__text {
@@ -527,10 +556,12 @@ ul, ol { padding: 0; }
 .care-tabs__media > * {
   position: absolute;
   inset: 0;
+  z-index: 0;
   opacity: 0;
-  transition: opacity 0.9s var(--ease);
+  transition: opacity 0.9s ease-in-out;
 }
-.care-tabs__media > .is-active { opacity: 1; }
+.care-tabs__media > .is-active { opacity: 1; z-index: 2; }
+.care-tabs__media > .is-leaving { opacity: 1; z-index: 1; transition: none; }
 .care-tabs__media img { width: 100%; height: 100%; object-fit: cover; }
 
 .care-tabs__lead { margin-top: 16px; }
@@ -581,19 +612,23 @@ ul, ol { padding: 0; }
 /* ── Home: offerings preview ────────────────────────────────────────────── */
 .offer-links {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   list-style: none;
   border-top: 1px solid var(--color-line-strong);
 }
-.offer-links li {
+.offer-links a {
   display: flex;
   align-items: center;
   gap: 14px;
+  height: 100%;
   padding: 20px 16px 20px 0;
   border-bottom: 1px solid var(--color-line);
+  text-decoration: none;
+  transition: padding var(--duration) var(--ease);
 }
+.offer-links a:hover { padding-left: 8px; }
 .offer-links svg { flex: none; width: 26px; height: 26px; color: var(--taupe); }
-@media (max-width: 1024px) { .offer-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .offer-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .offer-links { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── Home: reviews carousel ─────────────────────────────────────────────── */
@@ -642,56 +677,98 @@ ul, ol { padding: 0; }
 .page-hero .eyebrow { margin-bottom: 20px; }
 .page-hero .lede { max-width: 40em; margin-top: 24px; }
 
-/* ── Offerings ──────────────────────────────────────────────────────────── */
-.offerings { padding-bottom: var(--section-space); }
-.offerings__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
+/* Full-bleed image variant: the header sits over it, so the hero pulls up
+   under the header and pads that height back in. */
+.page-hero--media {
+  --color-accent: var(--blush);
+  position: relative;
+  margin-top: calc(-1 * var(--header-h));
+  padding-block: calc(var(--header-h) + clamp(72px, 9vw, 132px)) clamp(64px, 8vw, 116px);
+  overflow: hidden;
+  background: var(--espresso);
+  color: var(--ivory);
 }
-.offering-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  list-style: none;
-}
-.offering-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.page-hero__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  padding: 28px;
+  object-fit: cover;
+}
+.page-hero--media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(31, 23, 17, 0.62) 0%,
+    rgba(31, 23, 17, 0.42) 45%,
+    rgba(31, 23, 17, 0.58) 100%);
+}
+.page-hero--media > .container { position: relative; z-index: 1; }
+.page-hero--media .lede { color: rgba(255, 255, 252, 0.88); }
+
+/* ── Offerings ──────────────────────────────────────────────────────────── */
+/* Rows sit in column 1; every detail panel spans all rows in column 2 (only
+   the open one renders). Below 900px the grid collapses so each panel falls
+   directly under its row, like an accordion. */
+.offering-browser {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 16px;
+  align-items: start;
+  scroll-margin-top: calc(var(--header-h) + 24px);
+}
+
+.offering-row {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 24px;
   background: var(--cream);
-  border: 1px solid var(--color-line);
+  border: 1px solid transparent;
   border-radius: var(--radius);
+  text-align: left;
+  scroll-margin-top: calc(var(--header-h) + 16px);
   transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
-.offering-card:hover { background: var(--blush); border-color: transparent; }
-.offering-card__icon { width: 36px; height: 36px; margin-bottom: 8px; color: var(--taupe); }
-.offering-card:hover .offering-card__icon { color: var(--charcoal); }
-.offering-card__desc { font-size: var(--text-small); line-height: 1.65; color: var(--charcoal); }
+.offering-row:hover { background: var(--ivory); }
+.offering-row[aria-expanded="true"] { background: var(--ivory); border-color: var(--color-line-strong); }
+.offering-row__icon { flex: none; width: 30px; height: 30px; color: var(--taupe); }
+.offering-row__arrow {
+  flex: none;
+  width: 20px;
+  height: 10px;
+  margin-left: -4px;
+  transition: transform var(--duration) var(--ease);
+}
+.offering-row:hover .offering-row__arrow,
+.offering-row[aria-expanded="true"] .offering-row__arrow { transform: translateX(6px); }
 
-.feature-card {
+.offering-detail {
+  grid-column: 2;
+  grid-row: 1 / span 10; /* keep in step with the number of offering rows */
   position: sticky;
   top: calc(var(--header-h) + 24px);
   overflow: hidden;
   background: var(--cream);
-  border: 1px solid var(--color-line);
   border-radius: var(--radius);
 }
-.feature-card__media { aspect-ratio: 4 / 3; overflow: hidden; }
-.feature-card__media img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
-.feature-card__body { padding: 32px; }
-.feature-card__body .heading { margin-top: 12px; }
-.feature-card__body p:not(.eyebrow) { margin-top: 14px; font-size: var(--text-small); color: var(--charcoal); }
+.offering-detail__media { aspect-ratio: 16 / 11; overflow: hidden; }
+.offering-detail__media img { width: 100%; height: 100%; object-fit: cover; }
+.offering-detail__body { padding: clamp(28px, 3vw, 40px); }
+.offering-detail__title { margin-top: 12px; font-size: clamp(2.25rem, 3.4vw, 3rem); }
+.offering-detail__body p:not(.eyebrow) { margin-top: 16px; color: var(--charcoal); }
+.offering-detail .button-row { margin-top: 28px; }
 
-@media (max-width: 1024px) {
-  .offerings__layout { grid-template-columns: minmax(0, 1fr); }
-  .feature-card { position: static; }
-}
-@media (max-width: 640px) {
-  .offering-grid { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px) {
+  .offering-browser { grid-template-columns: minmax(0, 1fr); }
+  .offering-row,
+  .offering-detail { grid-column: 1; grid-row: auto; }
+  .offering-detail { position: static; margin-bottom: 12px; }
+  .offering-detail__media { aspect-ratio: 16 / 9; }
 }
 
 /* ── Care model ─────────────────────────────────────────────────────────── */
@@ -765,12 +842,61 @@ ul, ol { padding: 0; }
 
 .credentials { padding-bottom: var(--section-space); }
 .credential-group {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: 24px 48px;
-  padding-block: 48px;
+  interpolate-size: allow-keywords;
   border-top: 1px solid var(--color-line-strong);
 }
+.credential-group:last-child { border-bottom: 1px solid var(--color-line-strong); }
+
+.credential-group__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 28px;
+  list-style: none;
+  cursor: pointer;
+}
+.credential-group__summary::-webkit-details-marker { display: none; }
+
+/* Plus that turns into a minus when open */
+.credential-group__icon { position: relative; flex: none; width: 18px; height: 18px; }
+.credential-group__icon::before,
+.credential-group__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+  transition: transform var(--duration) var(--ease);
+}
+.credential-group__icon::after { transform: rotate(90deg); }
+.credential-group[open] .credential-group__icon::after { transform: rotate(0deg); }
+
+.credential-group__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  column-gap: 48px;
+  padding-bottom: 40px;
+  /* Fade with the fold so half-revealed rows never sit hard against the
+     clip edge while the height animates. */
+  opacity: 0;
+  transition: opacity 0.25s var(--ease);
+}
+.credential-group[open] .credential-group__body {
+  opacity: 1;
+  transition: opacity 0.35s var(--ease) 0.15s;
+}
+.credential-group__body .credential-list { grid-column: 2; }
+
+/* Smooth fold where supported (Chromium); other browsers open instantly */
+.credential-group::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size 0.45s var(--ease), content-visibility 0.45s allow-discrete;
+}
+.credential-group[open]::details-content { block-size: auto; }
 .credential-list { list-style: none; }
 .credential-list li {
   display: flex;
@@ -780,6 +906,9 @@ ul, ol { padding: 0; }
   border-bottom: 1px solid var(--color-line);
 }
 .credential-list li:first-child { padding-top: 0; }
+/* The group already closes with its own border — a border under the last row
+   doubles it up and, mid-fold, reads as a stray line hanging in the gap. */
+.credential-list li:last-child { border-bottom: 0; }
 .credential-list__meta {
   flex: none;
   color: var(--taupe);
@@ -789,7 +918,8 @@ ul, ol { padding: 0; }
 .credential-list__detail { display: block; color: var(--taupe); font-size: var(--text-small); }
 
 @media (max-width: 720px) {
-  .credential-group { grid-template-columns: minmax(0, 1fr); }
+  .credential-group__body { grid-template-columns: minmax(0, 1fr); }
+  .credential-group__body .credential-list { grid-column: 1; }
 }
 
 /* ── In Their Words ─────────────────────────────────────────────────────── */
@@ -870,16 +1000,12 @@ ul, ol { padding: 0; }
 .form__status { font-size: var(--text-small); }
 .form__status:empty { display: none; }
 
-.inquire-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(48px, 7vw, 120px);
-  padding-bottom: var(--section-space);
-}
+/* One form per page — Inquire and Stay in touch never share a page.
+   The container keeps its normal width so the form's left edge lines up
+   with the page-hero headline; the block itself sets the reading width. */
+.form-page { padding-bottom: var(--section-space); }
+.form-page .form-block { max-width: 660px; }
 .form-block__footnote { margin-top: 48px; }
-@media (max-width: 900px) {
-  .inquire-layout { grid-template-columns: minmax(0, 1fr); }
-}
 .form-block .heading { margin-bottom: 8px; }
 .form-block > p:not(.eyebrow) { margin-bottom: 28px; color: var(--charcoal); }
 
@@ -931,9 +1057,7 @@ ul, ol { padding: 0; }
 
 .inquire-panel .title { margin-top: 12px; font-size: clamp(2.25rem, 4vw, 3rem); }
 .inquire-panel .lede { margin: 8px 0 32px; }
-.inquire-panel__divider { height: 1px; margin-block: 48px 40px; background: var(--color-line-strong); }
-.inquire-panel .heading { margin-bottom: 8px; }
-.inquire-panel__updates > p:not(.eyebrow) { margin-bottom: 24px; font-size: var(--text-small); color: var(--charcoal); }
+.inquire-panel__mode[hidden] { display: none; }
 
 /* ── Footer ─────────────────────────────────────────────────────────────── */
 .site-footer {

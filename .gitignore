@@ -8,3 +8,7 @@ node_modules/
 ~$*.docx
 # Working documents stay out of the repo — Netlify publishes the repo root
 *.docx
+# Full-resolution source footage and photography; only the cropped, compressed
+# derivatives (videos/hero-*.mp4, images/<section>/*.jpg) ship
+videos/originals/
+images/originals/

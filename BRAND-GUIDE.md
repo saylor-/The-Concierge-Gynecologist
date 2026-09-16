@@ -136,8 +136,21 @@ Same-week appointments, direct access…       ← body (Jost)
 
 - **Subjects:** real women in their 40s–60s living active, grounded lives (walking, hiking, swimming, laughing with friends), plus Dr. Harrington in a calm office setting.
 - **Look:** natural light, warm neutrals that sit inside the palette, soft contrast, candid rather than posed. Nothing sterile, no exam tables, no stethoscope close-ups, no stock "doctor pointing at clipboard."
-- **Home hero video:** 4–5 short clips, **3 seconds each**, crossfading. Muted, `playsinline`, no controls. Each clip ≤ 3MB, 1920px wide, H.264 MP4 (plus an optional WebM), with a still `poster` image.
+- **Home hero video:** nine short clips, **2 seconds each** on screen (encoded at 2.8s so the cross-dissolve always has moving footage on both sides), crossfading. Muted, `playsinline`, no controls. Each clip ≤ 3MB, 1920px wide, H.264 MP4 (plus an optional WebM), with a still `poster` image. Keep the clip length and the rotator's `data-interval` in `index.html` in step.
+- **Video workflow:** drop full-resolution source files in `videos/originals/` (git-ignored, never deployed). Encode each as the next `videos/hero-<n>.mp4` with a poster frame, then add a slide in `index.html`:
+  ```bash
+  ffmpeg -ss 2 -i videos/originals/SOURCE.mp4 -t 2 -an -vf "scale=1920:-2,fps=25" -c:v libx264 -preset slow -crf 26 -pix_fmt yuv420p -movflags +faststart videos/hero-2.mp4
+  ffmpeg -i videos/hero-2.mp4 -frames:v 1 -q:v 4 images/hero/hero-2.jpg
+  ```
+  `-ss` (before `-i`) picks the start second; `-t 2` takes the two seconds that follow. Always cut from the 4K master rather than re-encoding an already-compressed clip, and never leave a raw master in `videos/` — everything there ships.
 - **Files:** `images/<section>/<descriptive-kebab-name>.jpg` and `videos/hero-<n>.mp4`. JPG/WebP at 82% quality, max 2400px on the long edge. Always set `width`/`height` attributes and descriptive `alt` text.
+- **Current sources:** photography from Haute Stock, motion from Artlist. Full-resolution originals live in `images/originals/` and `videos/originals/` (both git-ignored, never deployed); only the cropped derivatives ship. Crop to the slot's ratio rather than letting CSS squash the image:
+  ```bash
+  # "Care that is" + care model, portrait 4:5
+  ffmpeg -i "images/originals/SOURCE.jpg" -vf "scale=1200:1500:force_original_aspect_ratio=increase,crop=1200:1500" -q:v 4 images/approach/NAME.jpg
+  # Offering panels, landscape 16:11
+  ffmpeg -i "images/originals/SOURCE.jpg" -vf "scale=1280:880:force_original_aspect_ratio=increase,crop=1280:880" -q:v 4 images/offerings/SLUG.jpg
+  ```
 - Until real assets arrive, pages use `.placeholder` blocks labeled with what belongs there. **Search the codebase for `placeholder` before launch; none should remain.**
 
 ---
@@ -158,21 +171,31 @@ Behavior:
 ### Inquire panel (modeled on md2.com)
 - Slides in from the right over a dimmed backdrop. It's a panel, not a page change. Opened by any element with `data-open-inquire`; closes on ✕, backdrop click, or `Esc`. Focus is trapped inside while open and returned afterward.
 - Every `data-open-inquire` element is a real link to `/inquire/`, so it still works without JavaScript. `/#inquire` on any URL also opens the panel.
-- **Form 1: Inquiry.** First name, Last name, Email, Phone, Message, plus an opt-in checkbox: "I'd like to receive occasional updates — new partnerships, availability, and practice news."
-- **Form 2: Practice updates.** Name, Email.
+- **The two forms are separate and never appear together.** The panel has two modes and shows exactly one: `[data-open-inquire]` opens **Inquire**, `[data-open-inquire="updates"]` opens **Stay in touch**. Same rule on the pages: `/inquire/` carries only the inquiry form, `/stay-in-touch/` only the sign-up, each cross-linking to the other.
+- **Inquire.** First name, Last name, Email, Phone, Message, plus an opt-in checkbox: "I'd like to receive occasional updates — new partnerships, availability, and practice news."
+- **Stay in touch.** Name, Email, under the line "New partnerships, availability, and practice news."
 - Both forms carry a privacy note: *don't include personal medical details; not for emergencies.*
 
 ### Buttons & links
 - `.button`: espresso fill, ivory text, 12px Instrument Sans caps, +0.16em tracking, 48px tall.
-- `.button--ghost`: outline version. `.button--light`: for dark backgrounds.
+- `.button--ghost`: outline version. `.button--light`: solid ivory for dark backgrounds. `.button--ghost-light`: outlined ivory for use over photography or video (the hero's "Learn more").
 - `.text-link`: inline underlined link with the same caps treatment.
 
 ### Cards
-- **Offering card** (asktia.com list + DSR box grid): cream background, hairline border, line icon in taupe, Crimson Pro name, 1–2 sentence Jost description. Hover: background warms to blush. No shadow, no lift.
-- **Feature card**: image on top, text below, sticky beside the offerings grid on desktop.
+### Offerings browser (modeled on asktia.com)
+- Blush section. Left column: one cream **row** per offering (taupe line icon, Jost name, thin arrow). Hover or selected: row turns ivory; the selected row gets a hairline border and its arrow nudges right.
+- Right column: a sticky **detail panel** for the selected offering: image, category eyebrow, Instrument Serif title, description, Inquire button. One offering is always open on desktop.
+- Below 900px, each panel opens directly beneath its row (accordion); tapping an open row closes it.
+- Rows are `<button aria-expanded aria-controls>`; panels are `<article hidden>`. `/offerings/#<id>` deep-links to an offering (the home page offering list uses this).
+- Categories: Hormonal health · Sexual health · Cancer care · Gynecologic concerns · Contraception · In-office procedures.
+- The sticky panel spans the row count in CSS (`grid-row: 1 / span 10`) — update it if offerings are added or removed.
+
+### Credential groups (Dr. Harrington page)
+Native `<details>`/`<summary>` rows, closed by default: Crimson Pro heading on the left, a plus/minus icon on the right, hairline borders between groups. The list sits in the right two-thirds when open. Opening animates in Chromium browsers and is instant elsewhere; no JavaScript is involved.
 
 ### Rotators (one shared script)
 Used for the hero clips, the "Care that is ___" tabs, and the review carousel. Markup contract (see `script.js`): `[data-rotator]` root, one or more `[data-rotator-track]` children that rotate in lockstep, optional `[data-rotator-tab]`, `[data-rotator-prev]`, `[data-rotator-next]`, `[data-rotator-count]`. A `data-bg` attribute on the first track's items tints the section.
+**Cross-dissolve:** `data-fade="<ms>"` holds the outgoing item at full opacity (class `.is-leaving`) while the incoming one fades in over it. Without it both items fade at once, the hero dips toward the background colour mid-transition, and that dip reads as a flash. Keep the fade a little under the interval (hero: 1100ms fade, 2000ms interval).
 
 ### Footer
 Charcoal background. Wordmark + one-line description, an Explore nav, contact, then a legal row with copyright and the medical disclaimer.
@@ -191,10 +214,11 @@ Each page lives in its own folder as `index.html`, so URLs are clean (`/care-mod
 | Dr. Harrington | `/dr-harrington/` | `/dr-harrington/` |
 | In Their Words | `/in-their-words/` | `/in-their-words/` |
 | Inquire | `/inquire/` (also a slide-out panel on every page) | `/inquire/` |
+| Stay in touch | `/stay-in-touch/` (also a panel mode) | `/stay-in-touch/` |
 | Not found | any unknown URL | `/404.html` |
 
 ### Home
-1. **Hero video.** 4–5 clips, 3s each, crossfade. Fixed text at the bottom that never changes: **"Boutique gynecology care."** (MD2 style).
+1. **Hero video.** 9 clips, 2s each, crossfade. Fixed text that never changes: **"Boutique gynecology care."** (MD2 style), sitting above centre with a "Learn more" button and down arrow beneath it that scrolls to the statement section (`#statement`, which carries `.scroll-target` for the sticky-header offset).
 2. **Statement.** Very large, lots of space: *"Specialized care for women in hormonal transitions, delivered on-site at concierge primary care practices."*
 3. **Care that is ___.** Rotating words, each paired with an image; section background tint shifts with each word. Also clickable as tabs. Words: Personalized · Unrushed · Evidence-based · Discreet · Trauma-informed · Uncompromised · Comprehensive.
 4. **Meet Dr. Harrington.** Photo + short bio + link.
@@ -202,15 +226,15 @@ Each page lives in its own folder as `index.html`, so URLs are clean (`/care-mod
 6. **Reviews carousel.** At the bottom; cycles through the bolded excerpt of each review.
 
 ### Offerings
-Twelve services in boxes with icon + short description (asktia.com feel, DSR box layout), next to a sticky feature card with a photo of Dr. Harrington and an Inquire CTA.
-Perimenopause · Menopause · Sexual function · Cancer survivorship · Previvor surveillance · Abnormal uterine bleeding · Pelvic pain · Vulvar conditions · Endometrial biopsy · IUD insertion · Colposcopy & LEEP · Hysteroscopy.
-**Descriptions are drafts and must be reviewed by Dr. Harrington for clinical accuracy before launch.**
+All ten offerings visible at once as a list; selecting one shows its details in a sidebar (see §6, Offerings browser). Nothing else competes with the list. The "On-site care" section (photo, care-model summary, Inquire) sits below it at the bottom of the page.
+Perimenopause · Menopause · Sexual function · Cancer survivorship · Previvor surveillance · Abnormal uterine bleeding · Pelvic pain · Vulvar conditions · Contraception · Procedures.
+**Descriptions are Dr. Harrington's own words — quote them verbatim and don't paraphrase.** Contraception covers Nexplanon and IUDs; Procedures covers colposcopy/LEEP, endometrial biopsy, and hysteroscopy.
 
 ### Care Model
 Explains the partnership model: Dr. Harrington provides gynecologic care, consultations, and select procedural services on-site at partnering concierge primary care practices across the Denver metro area. It is not an independent practice. Includes a three-step explainer, a patient callout ("ask your physician whether their office partners with Dr. Harrington"), and a CTA for practices interested in partnering.
 
 ### Dr. Harrington
-Layout modeled on parsleyhealth.com/robin-berzin-md: large portrait beside the bio, then credential groups as labeled rows: **Education & Training**, **Memberships**, **Awards** (with years right-aligned).
+Layout modeled on parsleyhealth.com/robin-berzin-md: large portrait beside the bio, then three foldable credential groups, **Education & Training**, **Memberships**, **Awards** (years right-aligned), closed until clicked.
 
 ### In Their Words
 Intro line, then all patient reviews **at the same text size**, each with its date. Reviews are quoted verbatim.
@@ -311,14 +335,14 @@ Then open http://localhost:3000. Netlify Forms only work on the deployed site; l
 
 | # | Item | Current choice |
 |---|---|---|
-| 1 | Contact email domain | Site is `theconciergegynecologist.com`; forms and footer still use `contact@laurenharringtonmd.com` |
+| 1 | Contact email | **Confirmed:** `contact@laurenharringtonmd.com` stays the contact address, even though the site is `theconciergegynecologist.com` |
 | 2 | Accent color for eyebrows | `--taupe #716862`. The type-system sample used a burgundy that isn't in the palette |
 | 3 | "Discrete" in the "Care that is" list | Changed to **"Discreet"** (private/confidential). "Discrete" means separate |
 | 4 | ACOG name | Written as "American College of Obstetricians and Gynecologists, Fellow" (official name) |
 | 5 | Review typos (e.g., "extremely through") | Kept verbatim, as patient quotes |
 | 6 | Sample quotes from the type-system doc ("I don't want you to just get through this decade…") | **Not used on the site** until Dr. Harrington confirms they're her words |
 | 7 | "Membership" language in the type samples | Not used; the site describes a partnership model, not a direct membership |
-| 8 | Offering descriptions | Drafted; need clinical review |
+| 8 | Offering descriptions | **Supplied by Dr. Harrington** (16 Sep 2026) and used verbatim |
 | 9 | Announcement bar copy | "Private gynecologic care, delivered on-site at concierge practices across Denver" |
 | 10 | Home review carousel ("just the bold text") | The source doc had no bold excerpts, so each slide uses one short **verbatim** sentence from a review. Swap in preferred excerpts in `index.html` |
 | 11 | Page headlines and short section intros not in the source doc (e.g., "Focused care for the transitions that matter") | Drafted in brand voice; edit freely |
@@ -330,9 +354,8 @@ Then open http://localhost:3000. Netlify Forms only work on the deployed site; l
 | Owner | Task |
 |---|---|
 | Lauren | Provide logo files (SVG preferred) to replace the text wordmark |
-| Lauren | Provide AI avatar / images for each "Care that is" word |
-| Lauren | Provide photo for the Offerings page |
-| Lauren | Upload 4–5 hero videos |
+| Lauren | Review the stock photo and clip chosen for each slot and flag any that miss |
+| Lauren | Decide whether to commission real photography of Dr. Harrington and partner practices to replace stock |
 | Lauren | Review and approve offering descriptions |
 | Lauren | Draft the automatic welcome email for subscribers (sent via Resend) |
 | Lauren | Create Netlify, GitHub, and Resend accounts using contact@laurenharringtonmd.com |
