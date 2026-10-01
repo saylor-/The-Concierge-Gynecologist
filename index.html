@@ -22,7 +22,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@500&family=Instrument+Sans:wght@600&family=Instrument+Serif:ital@0;1&family=Jost:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@500&family=Instrument+Sans:wght@600&family=Instrument+Serif:ital@0;1&family=Jost:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="/styles.css">
   <script defer src="/script.js"></script>
 
@@ -32,7 +32,7 @@
     "@type": "MedicalBusiness",
     "name": "The Concierge Gynecologist",
     "url": "https://theconciergegynecologist.com/",
-    "email": "contact@laurenharringtonmd.com",
+    "email": "contact@theconciergegynecologist.com",
     "description": "Boutique gynecology care for women in hormonal transitions, delivered on-site at partnering concierge primary care practices across the Denver metro area.",
     "image": "https://theconciergegynecologist.com/images/team/dr-lauren-harrington.jpg",
     "medicalSpecialty": "Gynecologic",
@@ -44,10 +44,6 @@
 <body class="page-home has-hero-media">
 <!-- partial:header -->
 <a class="skip-link" href="#main">Skip to content</a>
-
-<div class="announcement">
-  <p>Private gynecologic care, delivered on-site at concierge practices across Denver</p>
-</div>
 
 <header class="site-header" data-header>
   <div class="site-header__top">
@@ -63,18 +59,18 @@
     <a class="wordmark" href="/">The Concierge Gynecologist</a>
 
     <div class="site-header__utility site-header__utility--right">
-      <a class="utility-link utility-link--secondary" href="/stay-in-touch/" data-open-inquire="updates">Stay in touch</a>
-      <a class="utility-link" href="/inquire/" data-open-inquire>Inquire</a>
+      <a class="utility-link utility-link--strong" href="/stay-in-touch/" data-open-inquire="updates">Subscribe</a>
+      <a class="utility-link" href="/inquire/" data-open-inquire>Get in touch</a>
     </div>
   </div>
 
   <nav class="site-nav" id="site-nav" aria-label="Main">
     <ul class="site-nav__list">
-      <li><a class="site-nav__link" href="/offerings/">Offerings</a></li>
-      <li><a class="site-nav__link" href="/care-model/">Care Model</a></li>
+      <li><a class="site-nav__link" href="/expertise/">Expertise</a></li>
       <li><a class="site-nav__link" href="/dr-harrington/">Dr. Harrington</a></li>
+      <li><a class="site-nav__link" href="/questions/">Q&amp;A</a></li>
       <li><a class="site-nav__link" href="/in-their-words/">In Their Words</a></li>
-      <li class="site-nav__mobile-only"><a class="site-nav__link" href="/inquire/">Inquire</a></li>
+      <li class="site-nav__mobile-only"><a class="site-nav__link" href="/inquire/">Get in touch</a></li>
     </ul>
   </nav>
 </header>
@@ -132,6 +128,10 @@
         </video>
       </div>
     </div>
+    <button class="motion-toggle" type="button" aria-pressed="false" aria-label="Pause background motion" data-motion-toggle>
+      <svg class="icon-pause" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true"><rect width="4" height="14" rx="1"/><rect x="8" width="4" height="14" rx="1"/></svg>
+      <svg class="icon-play" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg>
+    </button>
     <div class="hero__content">
       <h1 class="title title--display">Boutique gynecology care.</h1>
       <a class="button button--ghost-light hero__cta" href="#statement">
@@ -143,90 +143,62 @@
 
   <section class="section scroll-target" id="statement">
     <div class="container">
-      <p class="statement__text">Specialized care for women in hormonal transitions, <em>delivered <span class="nowrap">on-site</span></em> at concierge primary care practices.</p>
+      <p class="statement__text">Specialized care for women in hormonal transitions.</p>
     </div>
   </section>
 
-  <section class="section care-tabs" data-rotator data-interval="2600" data-fade="900" data-pause-on-hover aria-labelledby="care-tabs-title">
-    <div class="container split">
-      <!-- One image per word; data-bg tints the section as the words rotate -->
-      <div class="care-tabs__media" data-rotator-track>
-        <img src="/images/approach/personalized.jpg" alt="A woman smiling in warm daylight" width="1200" height="1500" data-bg="var(--blush)">
-        <img src="/images/approach/unrushed.jpg" alt="Tea steeping in a cup on a wooden table" width="1200" height="1500" data-bg="var(--cream)" loading="lazy">
-        <img src="/images/approach/evidence-based.jpg" alt="Two supplement capsules resting on a pale surface" width="1200" height="1500" data-bg="var(--sage)" loading="lazy">
-        <img src="/images/approach/discreet.jpg" alt="A profile portrait in soft black and white" width="1200" height="1500" data-bg="var(--clay)" loading="lazy">
-        <img src="/images/approach/trauma-informed.jpg" alt="Two hands reaching toward one another" width="1200" height="1500" data-bg="var(--brass)" loading="lazy">
-        <img src="/images/approach/uncompromised.jpg" alt="Water running from a brass tap" width="1200" height="1500" data-bg="var(--blush)" loading="lazy">
-        <img src="/images/approach/comprehensive.jpg" alt="A woman seated cross-legged in meditation" width="1200" height="1500" data-bg="var(--cream)" loading="lazy">
-      </div>
-
-      <div>
-        <p class="eyebrow">Our approach</p>
-        <h2 class="title care-tabs__lead" id="care-tabs-title">
-          Care that is
-          <span class="visually-hidden">personalized, unrushed, evidence-based, discreet, trauma-informed, uncompromised, and comprehensive</span>
-          <span class="care-tabs__words" data-rotator-track aria-hidden="true">
-            <span>personalized</span>
-            <span>unrushed</span>
-            <span>evidence-based</span>
-            <span>discreet</span>
-            <span>trauma-informed</span>
-            <span>uncompromised</span>
-            <span>comprehensive</span>
-          </span>
-        </h2>
-        <ul class="care-tabs__list">
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Personalized <span class="care-tabs__tab-index">01</span></button></li>
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Unrushed <span class="care-tabs__tab-index">02</span></button></li>
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Evidence-based <span class="care-tabs__tab-index">03</span></button></li>
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Discreet <span class="care-tabs__tab-index">04</span></button></li>
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Trauma-informed <span class="care-tabs__tab-index">05</span></button></li>
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Uncompromised <span class="care-tabs__tab-index">06</span></button></li>
-          <li><button class="care-tabs__tab" type="button" data-rotator-tab>Comprehensive <span class="care-tabs__tab-index">07</span></button></li>
+  <!-- Replaces the rotating "Our approach" panel, paused for now. Its markup
+       is in git history and the .care-tabs styles are still in styles.css.
+       The photograph is open on the right, which is where the copy sits; the
+       gradient in .membership::after is what guarantees contrast there. -->
+  <section class="section membership" data-parallax aria-labelledby="membership-title">
+    <img class="membership__bg" data-parallax-layer src="/images/sections/membership.jpg" alt="" width="2340" height="1800" loading="lazy">
+    <div class="container">
+      <div class="membership__inner">
+        <h2 class="membership-lead" id="membership-title">A membership practice in the Denver metro area for women as they navigate:</h2>
+        <ul class="navigate-list">
+          <li>Perimenopause</li>
+          <li>Menopause</li>
+          <li>Sexual Health</li>
+          <li>Cancer Survivorship</li>
+          <li>Previvor Surveillance</li>
         </ul>
+        <div class="button-row">
+          <a class="text-link" href="/expertise/">Areas of expertise <span aria-hidden="true">&rarr;</span></a>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section section--cream">
+  <section class="section section--dark" aria-labelledby="physician-title">
     <div class="container split">
       <div class="media-frame">
         <img src="/images/team/dr-lauren-harrington.jpg" alt="Portrait of Dr. Lauren Harrington" width="1024" height="1536" loading="lazy">
       </div>
       <div class="split__content">
         <p class="eyebrow">Meet your physician</p>
-        <h2 class="title">Lauren Harrington, MD</h2>
-        <div class="prose">
-          <p>A Stanford-trained, board-certified OB/GYN and Menopause Society Certified Practitioner, Dr. Harrington specializes in the nuanced care of midlife transitions: perimenopause, menopause, and beyond.</p>
-          <p>For over a decade, she has been empowering women through every stage of their health, pairing evidence-based medicine with warmth and personal connection.</p>
+        <h2 class="physician-name" id="physician-title">Lauren Harrington, MD</h2>
+        <div class="prose physician-bio">
+          <p>Dr. Harrington is a Stanford-trained Menopause Certified Practitioner and a nationally recognized expert in women’s sexual health.</p>
         </div>
         <div class="button-row">
-          <a class="button button--ghost" href="/dr-harrington/">About Dr. Harrington</a>
+          <a class="text-link" href="/dr-harrington/">Read her story <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <!-- Full-bleed photographic band. The image is decorative (alt=""); the
+       scrim under .feature-band__inner is what keeps the ivory text at AA. -->
+  <section class="section feature-band" data-parallax aria-labelledby="different-title">
+    <img class="feature-band__bg" data-parallax-layer src="/images/sections/ready-for-different-care.jpg" alt="" width="2200" height="1228" loading="lazy">
     <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow">Offerings</p>
-        <h2 class="title">Care for every stage of the transition</h2>
-      </div>
-      <ul class="offer-links">
-        <li><a href="/offerings/#perimenopause"><img class="offer-links__icon" src="/images/icons/perimenopause.png" alt="" width="30" height="30">Perimenopause</a></li>
-        <li><a href="/offerings/#menopause"><img class="offer-links__icon" src="/images/icons/menopause.png" alt="" width="30" height="30">Menopause</a></li>
-        <li><a href="/offerings/#sexual-function"><img class="offer-links__icon" src="/images/icons/sexual-function.png" alt="" width="30" height="30">Sexual function</a></li>
-        <li><a href="/offerings/#cancer-survivorship"><img class="offer-links__icon" src="/images/icons/cancer-survivorship.png" alt="" width="30" height="30">Cancer survivorship</a></li>
-        <li><a href="/offerings/#previvor-surveillance"><img class="offer-links__icon" src="/images/icons/previvor-surveillance.png" alt="" width="30" height="30">Previvor surveillance</a></li>
-        <li><a href="/offerings/#abnormal-uterine-bleeding"><img class="offer-links__icon" src="/images/icons/abnormal-uterine-bleeding.png" alt="" width="30" height="30">Abnormal uterine bleeding</a></li>
-        <li><a href="/offerings/#pelvic-pain"><img class="offer-links__icon" src="/images/icons/pelvic-pain.png" alt="" width="30" height="30">Pelvic pain</a></li>
-        <li><a href="/offerings/#vulvar-conditions"><img class="offer-links__icon" src="/images/icons/vulvar-conditions.png" alt="" width="30" height="30">Vulvar conditions</a></li>
-        <li><a href="/offerings/#contraception"><img class="offer-links__icon" src="/images/icons/contraception.png" alt="" width="30" height="30">Contraception</a></li>
-        <li><a href="/offerings/#procedures"><img class="offer-links__icon" src="/images/icons/procedures.png" alt="" width="30" height="30">Procedures</a></li>
-      </ul>
-      <div class="button-row">
-        <a class="button button--ghost" href="/offerings/">Explore offerings</a>
+      <div class="feature-band__inner">
+        <h2 class="title" id="different-title">Ready for a different type of care?</h2>
+        <p class="lede">There’s a lot of information about hormone therapy out there.<br>
+          And there are many different ways to get it.<br>
+          It’s hard to sift through it all to find safe, effective and personalized care.</p>
+        <p class="lede">As a Menopause Society Certified Practitioner and former Director of the Female Sexual Health Consultation Service at the University of Colorado, Dr. Harrington is a trusted source, providing care that is effective, grounded in current science, infused with warmth and personal attention, and backed by safety data.</p>
       </div>
     </div>
   </section>
@@ -234,7 +206,7 @@
   <!-- Short verbatim excerpts; full reviews live on /in-their-words/ -->
   <section class="section section--dark reviews" data-rotator data-interval="6000" data-pause-on-hover aria-labelledby="reviews-title">
     <div class="container">
-      <h2 class="eyebrow" id="reviews-title">In their words</h2>
+      <h2 class="eyebrow reviews__label" id="reviews-title">In their words</h2>
       <div class="reviews__track" data-rotator-track>
         <figure class="reviews__item"><blockquote class="quote"><p>“The most thorough, thoughtful, patient, and kind medical professional I have ever had the privilege of working with.”</p></blockquote><figcaption class="eyebrow">Patient review · 2022</figcaption></figure>
         <figure class="reviews__item"><blockquote class="quote"><p>“I felt very listened to and supported.”</p></blockquote><figcaption class="eyebrow">Patient review · 2022</figcaption></figure>
@@ -272,24 +244,23 @@
   <div class="container site-footer__grid">
     <div>
       <a class="wordmark" href="/">The Concierge Gynecologist</a>
+      <p class="site-footer__place">Denver, Colorado</p>
       <p class="site-footer__tagline">Boutique gynecology care from Lauren Harrington, MD, delivered on-site at partnering concierge primary care practices across the Denver metro area.</p>
     </div>
     <nav aria-label="Footer">
       <p class="eyebrow">Explore</p>
       <ul class="site-footer__list">
-        <li><a href="/offerings/">Offerings</a></li>
-        <li><a href="/care-model/">Care Model</a></li>
+        <li><a href="/expertise/">Expertise</a></li>
         <li><a href="/dr-harrington/">Dr. Harrington</a></li>
+        <li><a href="/questions/">Q&amp;A</a></li>
         <li><a href="/in-their-words/">In Their Words</a></li>
       </ul>
     </nav>
     <div>
       <p class="eyebrow">Contact</p>
       <ul class="site-footer__list">
-        <li><a href="/inquire/" data-open-inquire>Inquire</a></li>
-        <li><a href="/stay-in-touch/" data-open-inquire="updates">Stay in touch</a></li>
-        <li><a href="mailto:contact@laurenharringtonmd.com">contact@laurenharringtonmd.com</a></li>
-        <li>Denver, Colorado</li>
+        <li><a href="/inquire/" data-open-inquire>Get in touch</a></li>
+        <li><a href="/stay-in-touch/" data-open-inquire="updates">Subscribe</a></li>
       </ul>
     </div>
   </div>
@@ -316,9 +287,9 @@
     </button>
 
     <section class="inquire-panel__mode" data-panel-mode="inquiry">
-      <p class="eyebrow">Inquire</p>
-      <h2 class="title" id="panel-inquiry-title">Want to know more?</h2>
-      <p class="lede">Send a note and Dr. Harrington’s office will be in touch.</p>
+      <p class="eyebrow">Get in touch</p>
+      <h2 class="title" id="panel-inquiry-title">Do you have a specific question or inquiry?</h2>
+      <p class="lede">Reach Dr. Harrington’s team directly. No medical questions or advice, please.</p>
 
       <form class="form" name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-form>
         <input type="hidden" name="form-name" value="inquiry">
@@ -359,9 +330,9 @@
     </section>
 
     <section class="inquire-panel__mode" data-panel-mode="updates" hidden>
-      <p class="eyebrow">Stay in touch</p>
-      <h2 class="title" id="panel-updates-title">Practice updates</h2>
-      <p class="lede">New partnerships, availability, and practice news.</p>
+      <p class="eyebrow">Subscribe</p>
+      <h2 class="title" id="panel-updates-title">Want to know more</h2>
+      <p class="lede">Subscribe to Dr. Harrington’s newsletter for information about how to become a patient, announcements about new practice locations, and current news in hormone health.</p>
 
       <form class="form" name="updates" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-form data-success="You’re on the list. Thank you.">
         <input type="hidden" name="form-name" value="updates">

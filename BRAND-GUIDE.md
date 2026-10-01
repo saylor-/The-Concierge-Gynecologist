@@ -2,7 +2,7 @@
 
 **Owner:** Dr. Lauren Harrington, MD
 **Site:** theconciergegynecologist.com
-**Contact inbox:** contact@laurenharringtonmd.com
+**Contact inbox:** contact@theconciergegynecologist.com
 **Repo:** github.com/saylor-/The-Concierge-Gynecologist
 
 This is the single source of truth for how the website looks, sounds, and is built. It is written so that a developer or an AI coding agent can pick up the project cold and make changes that stay on-brand. If something you're about to build contradicts this document, follow the document or update it deliberately. Don't drift.
@@ -46,7 +46,7 @@ All colors are defined once as CSS custom properties at the top of `styles.css`.
 | Token | Hex | Role | Contrast on Ivory |
 |---|---|---|---|
 | `--ivory` | `#fffffc` | Page background | n/a |
-| `--espresso` | `#1f1711` | Primary text, primary buttons, announcement bar, dark sections | 17.6 : 1 ✅ |
+| `--espresso` | `#1f1711` | Primary text, primary buttons, dark sections | 17.6 : 1 ✅ |
 | `--charcoal` | `#2d2929` | Secondary text, footer background | 14.4 : 1 ✅ |
 | `--taupe` | `#716862` | **The accent**: eyebrow/subtitle labels, small meta text | 5.4 : 1 ✅ AA |
 | `--stone` | `#887e76` | Hairlines, decorative marks, large text only | 3.96 : 1 ⚠️ large text only |
@@ -159,22 +159,21 @@ Same-week appointments, direct access…       ← body (Jost)
 ## 6. Components
 
 ### Header (modeled on aesop.com)
-Three stacked layers:
-1. **Announcement bar**: espresso background, one short ivory line, centered.
-2. **Top row**: 3-column grid. Left: location text (desktop) / menu button (mobile). Center: wordmark → home. Right: "Stay in touch" and **"Inquire"** (both open the Inquire panel).
-3. **Nav row**: centered links: Offerings · Care Model · Dr. Harrington · In Their Words. Active page gets a 1px underline (`aria-current="page"`). Hover draws the underline in from the left.
+Two stacked layers (an announcement bar above them was removed on 2026-09-30):
+1. **Top row**: 3-column grid. Left: location text (desktop) / menu button (mobile). Center: wordmark → home. Right: **"SUBSCRIBE"** (bold) and **"GET IN TOUCH"** — 0.8125rem, uppercased in CSS (`text-transform`, not in the markup, so screen readers read them as words). They run one step below `.site-nav__link`'s 0.9375rem because uppercase reads larger at the same size; the two should look level. "SUBSCRIBE" is Jost **700** — the only place the site uses that weight, which is why every page's Google Fonts URL carries `Jost:wght@400;500;700`. Both open the Inquire panel.
+2. **Nav row**: centered links: Expertise · Dr. Harrington · Q&A · In Their Words. Active page gets a 1px underline (`aria-current="page"`). Hover draws the underline in from the left.
 
 Behavior:
-- Header is `position: sticky`. The announcement bar scrolls away; the header stays.
+- Header is `position: sticky`.
 - **Home page only:** the header starts transparent with ivory text over the hero video, then turns solid ivory with espresso text on scroll or hover (the MD2 color change).
 - **Below 900px:** nav row collapses into a full-screen menu opened by the menu button.
 
 ### Inquire panel (modeled on md2.com)
 - Slides in from the right over a dimmed backdrop. It's a panel, not a page change. Opened by any element with `data-open-inquire`; closes on ✕, backdrop click, or `Esc`. Focus is trapped inside while open and returned afterward.
 - Every `data-open-inquire` element is a real link to `/inquire/`, so it still works without JavaScript. `/#inquire` on any URL also opens the panel.
-- **The two forms are separate and never appear together.** The panel has two modes and shows exactly one: `[data-open-inquire]` opens **Inquire**, `[data-open-inquire="updates"]` opens **Stay in touch**. Same rule on the pages: `/inquire/` carries only the inquiry form, `/stay-in-touch/` only the sign-up, each cross-linking to the other.
-- **Inquire.** First name, Last name, Email, Phone, Message, plus an opt-in checkbox: "I'd like to receive occasional updates — new partnerships, availability, and practice news."
-- **Stay in touch.** Name, Email, under the line "New partnerships, availability, and practice news."
+- **The two forms are separate and never appear together.** The panel has two modes and shows exactly one: `[data-open-inquire]` opens **Get in touch**, `[data-open-inquire="updates"]` opens **Subscribe**. Same rule on the pages: `/inquire/` carries only the inquiry form, `/stay-in-touch/` only the sign-up, each cross-linking to the other. (The URLs still read `/inquire/` and `/stay-in-touch/`; only the labels changed.)
+- **Get in touch.** Eyebrow "Get in touch" → title *"Do you have a specific question or inquiry?"* → *"Reach Dr. Harrington's team directly. No medical questions or advice, please."* Fields: First name, Last name, Email, Phone, Message, plus an opt-in checkbox: "I'd like to receive occasional updates — new partnerships, availability, and practice news."
+- **Subscribe.** Eyebrow "Subscribe" → title *"Want to know more"* → *"Subscribe to Dr. Harrington's newsletter for information about how to become a patient, announcements about new practice locations, and current news in hormone health."* Fields: Name, Email.
 - Both forms carry a privacy note: *don't include personal medical details; not for emergencies.*
 
 ### Buttons & links
@@ -183,65 +182,101 @@ Behavior:
 - `.text-link`: inline underlined link with the same caps treatment.
 
 ### Cards
-### Offerings browser (modeled on asktia.com)
-- Blush section. Left column: one cream **row** per offering (taupe line icon, Jost name, thin arrow). Hover or selected: row turns ivory; the selected row gets a hairline border and its arrow nudges right.
-- Right column: a sticky **detail panel** for the selected offering: image, category eyebrow, Instrument Serif title, description, Inquire button. One offering is always open on desktop.
-- Below 900px, each panel opens directly beneath its row (accordion); tapping an open row closes it.
-- Rows are `<button aria-expanded aria-controls>`; panels are `<article hidden>`. `/offerings/#<id>` deep-links to an offering (the home page offering list uses this).
-- Categories: Hormonal health · Sexual health · Cancer care · Gynecologic concerns · Contraception · In-office procedures.
-- The sticky panel spans the row count in CSS (`grid-row: 1 / span 10`) — update it if offerings are added or removed.
+### Disclosure lists (Q&A and Expertise)
+One shared component, used by both pages. A `.topic` is a titled group; its `.topic__list` holds `.disclosure` rows, which are native `<details>`/`<summary>`: label on the left, plus/minus on the right, hairline borders between rows, the same fold as the credential groups. The labels are **Jost at 1.375rem** — the body face, matching the answer that folds out beneath, and a step under `--text-heading-sm` because the sans has the larger x-height. Deliberately not the Crimson Pro used by the credential groups on `/dr-harrington/`, and set once for both pages.
+
+- **No JavaScript is required.** Every answer ships in the HTML whether folded or not, which is what lets search engines and assistants read all of it.
+- Each row carries an `id`, so `/expertise/#pelvic-pain` deep-links to it. Native `<details>` does not open for a fragment in every browser, so `script.js` opens the match and re-scrolls on the next frame (opening changes the page height); `scroll-margin-top` clears the sticky header.
+- This replaced the asktia-style **offerings browser** (icon rows plus a sticky photo panel) on 2026-09-30, along with the ten illustrated icons and ten offering photographs on that page. All of it is in git history — markup, `.offering-*` and `.offer-links` CSS, and the `data-offerings` block in `script.js`. The image and icon files are still in the repo, now unused.
 
 ### Credential groups (Dr. Harrington page)
 Native `<details>`/`<summary>` rows, closed by default: Crimson Pro heading on the left, a plus/minus icon on the right, hairline borders between groups. The list sits in the right two-thirds when open. Opening animates in Chromium browsers and is instant elsewhere; no JavaScript is involved.
+
+### Parallax bands (modeled on editorialstockimages.com)
+Any section marked `data-parallax` holds a `[data-parallax-layer]` image that overhangs its frame by 12% top and bottom and slides at a fraction of the scroll rate, so the section reads as a window moving over a near-stationary photograph. Used on the home page's membership band and "Ready for a different type of care?".
+
+- The overhang covers the whole travel, so nothing exposes an edge.
+- The layer overhangs **40%** top and bottom and travels **0.36 × the section height**. Those two numbers move together: travel must stay under the overhang or an edge shows.
+- **The trade to know before turning it up again:** a deeper overhang makes the visible frame taller and therefore narrower, so `object-fit: cover` trims more off the sides. At 40% the frame is roughly 1.2:1 on a 1440px screen. That is why each band's `object-position` is set by hand — `left` on the membership band to hold the rosehips, `72%` on the care band to push the subject toward the right edge. Turn the parallax up further and both will need re-checking.
+- `script.js` gates the work behind an `IntersectionObserver` (only on-screen bands are measured) and does all reading and writing inside one `requestAnimationFrame`.
+- **Under `prefers-reduced-motion` nothing moves** — no class is added, no listener is bound, and CSS pins `transform: none`. With JavaScript off, the layer simply sits centred. The section is complete in every case.
 
 ### Rotators (one shared script)
 Used for the hero clips, the "Care that is ___" tabs, and the review carousel. Markup contract (see `script.js`): `[data-rotator]` root, one or more `[data-rotator-track]` children that rotate in lockstep, optional `[data-rotator-tab]`, `[data-rotator-prev]`, `[data-rotator-next]`, `[data-rotator-count]`. A `data-bg` attribute on the first track's items tints the section.
 **Cross-dissolve:** `data-fade="<ms>"` holds the outgoing item at full opacity (class `.is-leaving`) while the incoming one fades in over it. Without it both items fade at once, the hero dips toward the background colour mid-transition, and that dip reads as a flash. Keep the fade a little under the interval (hero: 1100ms fade, 2000ms interval).
 
 ### Footer
+Three columns. Left: wordmark, **Denver, Colorado**, then the tagline. Middle: Explore. Right: Contact — Get in touch and Subscribe only. The `contact@theconciergegynecologist.com` address was pulled out of the footer on 2026-09-30; it still appears on `/inquire/`, in the Q&A answer about reaching the office, and in the `MedicalBusiness` schema on the home page.
+
 Charcoal background. Wordmark + one-line description, an Explore nav, contact, then a legal row with copyright and the medical disclaimer.
 
 ---
 
 ## 7. Pages
 
-Each page lives in its own folder as `index.html`, so URLs are clean (`/care-model/`).
+Each page lives in its own folder as `index.html`, so URLs are clean (`/expertise/`).
 
 | Page | URL | Folder |
 |---|---|---|
 | Home | `/` | `/index.html` |
-| Offerings | `/offerings/` | `/offerings/` |
-| Care Model | `/care-model/` | `/care-model/` |
+| Expertise | `/expertise/` | `/expertise/` |
+| Q&A | `/questions/` | `/questions/` |
 | Dr. Harrington | `/dr-harrington/` | `/dr-harrington/` |
 | In Their Words | `/in-their-words/` | `/in-their-words/` |
-| Inquire | `/inquire/` (also a slide-out panel on every page) | `/inquire/` |
-| Stay in touch | `/stay-in-touch/` (also a panel mode) | `/stay-in-touch/` |
+| Get in touch | `/inquire/` (also a slide-out panel on every page) | `/inquire/` |
+| Subscribe | `/stay-in-touch/` (also a panel mode) | `/stay-in-touch/` |
 | Not found | any unknown URL | `/404.html` |
+| Admin | `/admin/` (noindex, password-protected) | `/admin/` |
 
 ### Home
 1. **Hero video.** 9 clips, 2s each, crossfade. Fixed text that never changes: **"Boutique gynecology care."** (MD2 style), sitting above centre with a "Learn more" button and down arrow beneath it that scrolls to the statement section (`#statement`, which carries `.scroll-target` for the sticky-header offset).
-2. **Statement.** Very large, lots of space: *"Specialized care for women in hormonal transitions, delivered on-site at concierge primary care practices."*
-3. **Care that is ___.** Rotating words, each paired with an image; section background tint shifts with each word. Also clickable as tabs. Words: Personalized · Unrushed · Evidence-based · Discreet · Trauma-informed · Uncompromised · Comprehensive.
-4. **Meet Dr. Harrington.** Photo + short bio + link.
-5. **Offerings preview.** All 12 offerings as compact links to `/offerings/`.
-6. **Reviews carousel.** At the bottom; cycles through the bolded excerpt of each review.
+2. **Statement.** Very large, lots of space: *"Specialized care for women in hormonal transitions."* `--text-statement` is `clamp(3.15rem, 6.44vw, 5.6rem)`.
+3. **Membership band.** Full-bleed parallax band over `images/sections/membership.jpg` (rosehips on a linen backdrop). The photograph is open on the right, which is where the copy sits; `.membership::after` lays an ivory wash left-to-right so espresso type clears AA wherever the parallax brings the frame. Below 900px the wash runs top-to-bottom instead and the crop pulls left (`object-position: 12% center`) so the branch stays in frame. Copy: *"A membership practice in the Denver metro area for women as they navigate:"* set in **Jost, tracked caps, at display size** (`.membership-lead`), followed by five large Instrument Serif rows — Perimenopause · Menopause · Sexual Health · Cancer Survivorship · Previvor Surveillance — and an "Areas of expertise →" link. This replaced the rotating **"Care that is ___"** panel on 2026-09-30; that markup is in git history and its `.care-tabs` styles are still in `styles.css` if it returns. The split-layout version that stood here briefly used `images/approach/membership.jpg` (a mirrored portrait) — that file is still in the repo but unused.
+4. **Meet your physician.** Espresso band (`.section--dark`), ivory text. The portrait's own dark studio backdrop runs into the section background, which is the point. The name (`.physician-name`) uses the same tracked-caps Subtitle treatment as `.membership-lead`, one step larger; the one-sentence bio (`.physician-bio`) is Jost at lede size; then "Read her story →".
+5. **Ready for a different type of care?** Full-bleed parallax band over `images/sections/ready-for-different-care.jpg` — blush plaster, subject held to the right by `object-position: 72%`, copy on the open wall at left. **This band is light, not dark**: espresso text on an ivory wash that fades out to the right. It replaced a dark foliage crop (`what-makes-us-different.jpg`, deleted; regenerate from `images/originals/haute-stock-flora-collection-final-14.jpg` if wanted). Below 900px the copy runs full width, so the crop pulls onto the plaster (`object-position: 18%`) and the wash goes top-to-bottom. The opening block is broken by hand into three lines with `<br>`; those breaks are suppressed below 640px, where the sentences already wrap. Replaced the ten-item expertise preview on 2026-09-30; that list is in git history. Headed *"Ready for a different type of care?"*. Copy names the MSCP credential and the University of Colorado directorship — **factual claims about Dr. Harrington, so they need her sign-off before launch.**
+6. **Reviews carousel.** At the bottom; cycles through one short verbatim sentence from each review. The quotes are written into the HTML oldest-first, and `script.js` **shuffles the track once per visit** before the rotator reads it — otherwise the carousel always opened on 2022 and the newest quotes were never seen. Remove that block to restore chronological order.
 
-### Offerings
-All ten offerings visible at once as a list; selecting one shows its details in a sidebar (see §6, Offerings browser). Nothing else competes with the list. The "On-site care" section (photo, care-model summary, Inquire) sits below it at the bottom of the page.
-Perimenopause · Menopause · Sexual function · Cancer survivorship · Previvor surveillance · Abnormal uterine bleeding · Pelvic pain · Vulvar conditions · Contraception · Procedures.
-**Descriptions are Dr. Harrington's own words — quote them verbatim and don't paraphrase.** Contraception covers Nexplanon and IUDs; Procedures covers colposcopy/LEEP, endometrial biopsy, and hysteroscopy.
+### Expertise
+Full-screen image header, then four titled groups of disclosure rows (see §6). No icons, no photographs — the list is the page. The "On-site care" section (photo, partnership summary, Get in touch) sits below it at the bottom.
 
-### Care Model
-Explains the partnership model: Dr. Harrington provides gynecologic care, consultations, and select procedural services on-site at partnering concierge primary care practices across the Denver metro area. It is not an independent practice. Includes a three-step explainer, a patient callout ("ask your physician whether their office partners with Dr. Harrington"), and a CTA for practices interested in partnering.
+1. **Hormonal health** — Perimenopause · Menopause · Sexual function
+2. **Cancer survivorship & risk** — Cancer survivorship · Previvor surveillance
+3. **Gynecologic conditions** — Abnormal uterine bleeding · Pelvic pain · Vulvar conditions · Contraception
+4. **Procedures** — Endometrial biopsy · IUD insertion · Colposcopy & LEEP · Hysteroscopy
+
+**Descriptions are Dr. Harrington's own words — quote them verbatim and don't paraphrase.** The first nine are hers as written. The four **Procedures** rows are cut from her single "Procedures" sentence and the IUD clause of "Contraception" — no new copy was written, but she has never described these four individually. See §10.
+
+### Q&A
+Replaced the Care Model page on 2026-09-30 (that page's markup is in git history at `care-model/index.html`). Full-screen image header, then three groups of native `<details>` accordions — **The practice**, **Care and treatment**, **Alongside your other care** — closed by default, same plus/minus fold as the credential groups.
+
+Eight questions, **Dr. Harrington's own answers, first person, verbatim** (supplied 30 Sep 2026). The scaffold questions that stood here before were replaced wholesale — they were third-person and written from other pages' copy; they are in git history if any are wanted back.
+
+Every answer is also written into a `FAQPage` JSON-LD block in `<head>`, word for word. **Edit both or the schema goes stale.** Because the answers ship in the HTML whether folded or not, search engines and AI assistants read all of them — this is the site's main AEO asset.
+
+**Not published:** *"Can I schedule a virtual visit, or does every appointment need to be in person?"* came with no answer — the source note says the telehealth policy is undecided. A question with no answer, or a guessed one, is worse than a missing question on a medical site. See §10.
 
 ### Dr. Harrington
 Layout modeled on parsleyhealth.com/robin-berzin-md: large portrait beside the bio, then three foldable credential groups, **Education & Training**, **Memberships**, **Awards** (years right-aligned), closed until clicked.
 
-### In Their Words
-Intro line, then all patient reviews **at the same text size**, each with its date. Reviews are quoted verbatim.
+The page closes on a light quote band (`.quote-band--light`, `images/sections/founder-quote.jpg`) carrying her founder's statement in **Instrument Serif Italic** — the brand's Quote role — attributed "— Dr. Lauren Harrington, MD, MSCP". Same component as the closing band on In Their Words, light variant: the photograph is near-white, so a `rgba(255, 255, 252, 0.5)` wash both lifts its few dark pixels clear of espresso text and mutes the crosswalk pattern behind a long quote.
 
-### Inquire
-Standalone version of the panel's two forms, for direct links and no-JS visitors.
+The three-paragraph bio is **Dr. Harrington's own copy** (supplied 30 Sep 2026) — quote it verbatim. The `Person` JSON-LD in `<head>` mirrors it: the honor societies sit in `memberOf` and the teaching appointment in `affiliation`. If the bio changes, change the schema with it.
+
+### In Their Words
+Fourteen patient reviews, quoted verbatim, **one at a time in a carousel** — the same rotator as the home page, on a 9s interval because these are whole reviews rather than one-line excerpts. Replaced a two-column grid of all fourteen on 2026-09-30.
+
+- Body face at lede size, **ranged left inside a centred 680px column**. The home carousel centres its lines because they are short and set large; these run to eighteen, and centred body copy makes the eye hunt for the start of each one.
+- The measure is in px, not em. The quote mark is set at 2.75rem, so an em value resolves to a different width for it than for the review text and the two stop lining up.
+- The reviews differ wildly in length — one runs about 250 words, most are under 60. Stacked in one grid cell the section would always be as tall as the longest, so **only the active review is in flow** and the track's height follows it. Chromium animates that height (`interpolate-size`); elsewhere it steps.
+- Controls are prev / count / next plus the **site-wide motion switch** (`.motion-toggle--inline`), which WCAG 2.2.2 requires for anything that advances on its own — the home hero's toggle and this one are the same control and share their state.
+- All fourteen stay in the HTML, so search engines read every review; the rotator sets `aria-hidden` on the inactive ones so screen readers hear only the current one.
+
+Closes on a full-bleed parallax band (`images/sections/closing-quote.jpg`) carrying Dr. Harrington's own line — *"The care I provide is the care most women have **never** been offered."* — her attribution, and a **Become a patient** button. Set in Instrument Serif **Regular**, not the italic Quote role, because the emphasis on "never" has to read as italic against it.
+
+The scrim is `rgba(31, 23, 17, 0.78)` and that number is not a taste call: the brightest pixels in the frame sit near sRGB 213, and ivory text needs the composite at or below ~0.18 relative luminance to clear AA. The caption is ivory rather than the section's blush accent for the same reason. **Lighten the scrim or swap the photograph and both have to be recomputed** — automated checkers report contrast over a photograph as "incomplete", not as a failure, so nothing will catch it for you. This replaced a "Want to know more? Let's stay in touch." callout on 2026-09-30.
+
+### Get in touch / Subscribe
+Standalone versions of the panel's two forms, for direct links and no-JS visitors.
 
 ### Inspiration references
 - **aesop.com**: overall vibe, header/nav structure
@@ -254,18 +289,23 @@ Standalone version of the panel's two forms, for direct links and no-JS visitors
 
 ## 8. Technical standards
 
+### Admin & email automation
+- `/admin/` reads the email list and inquiries through `netlify/functions/admin-data.mjs`. The password lives in the `ADMIN_PASSWORD` environment variable and is checked **server-side** — never ship a password in page JavaScript, since the data behind it is personal.
+- `netlify/functions/submission-created.js` fires on every Netlify form submission and sends the Resend welcome email for the `updates` form only.
+- Setup for both, plus domain and deploy steps, is in [docs/LAUNCH-GUIDE.md](docs/LAUNCH-GUIDE.md).
+
 ### Stack
 - **Plain static HTML + one CSS file + one vanilla JS file.** No framework, no build step, no npm dependencies at runtime.
 - **Hosting:** Netlify (publish directory is the repo root; config in `netlify.toml`).
-- **Forms:** Netlify Forms (`data-netlify="true"`), with email notifications to contact@laurenharringtonmd.com configured in the Netlify dashboard.
+- **Forms:** Netlify Forms (`data-netlify="true"`), with email notifications to contact@theconciergegynecologist.com configured in the Netlify dashboard.
 - **Subscriber welcome email:** Resend (to be set up; see open tasks). Will run as a Netlify Function in `netlify/functions/`.
 
 ### File structure
 ```
 /
 ├── index.html              Home
-├── offerings/index.html
-├── care-model/index.html
+├── expertise/index.html
+├── questions/index.html
 ├── dr-harrington/index.html
 ├── in-their-words/index.html
 ├── inquire/index.html
@@ -302,7 +342,7 @@ This rewrites the content between `<!-- partial:name -->` … `<!-- /partial:nam
 
 ### Code conventions
 - **CSS:** tokens only (no raw hex), BEM-style class names (`block__element--modifier`), mobile-safe fluid sizes via `clamp()`, sections separated by comment banners.
-- **HTML:** semantic landmarks (`header`, `nav`, `main`, `footer`), one `<h1>` per page, heading levels in order, root-relative URLs (`/styles.css`, `/offerings/`).
+- **HTML:** semantic landmarks (`header`, `nav`, `main`, `footer`), one `<h1>` per page, heading levels in order, root-relative URLs (`/styles.css`, `/expertise/`).
 - **JS:** vanilla, no globals, behavior attached through `data-*` attributes rather than classes.
 
 ### SEO
@@ -336,15 +376,15 @@ Then open http://localhost:3000. Netlify Forms only work on the deployed site; l
 
 | # | Item | Current choice |
 |---|---|---|
-| 1 | Contact email | **Confirmed:** `contact@laurenharringtonmd.com` stays the contact address, even though the site is `theconciergegynecologist.com` |
+| 1 | Contact email | **Confirmed:** `contact@theconciergegynecologist.com` stays the contact address, even though the site is `theconciergegynecologist.com` |
 | 2 | Accent color for eyebrows | `--taupe #716862`. The type-system sample used a burgundy that isn't in the palette |
 | 3 | "Discrete" in the "Care that is" list | Changed to **"Discreet"** (private/confidential). "Discrete" means separate |
 | 4 | ACOG name | Written as "American College of Obstetricians and Gynecologists, Fellow" (official name) |
 | 5 | Review typos (e.g., "extremely through") | Kept verbatim, as patient quotes |
 | 6 | Sample quotes from the type-system doc ("I don't want you to just get through this decade…") | **Not used on the site** until Dr. Harrington confirms they're her words |
-| 7 | "Membership" language in the type samples | Not used; the site describes a partnership model, not a direct membership |
+| 7 | "Membership" vs. "partnership" language | **Both are now on the site.** The home page says "A membership practice in the Denver metro area" (Saylor's copy, 30 Sep 2026); the Q&A page and the Expertise footer still describe a partnership model delivered inside concierge primary care practices. **Dr. Harrington should pick one frame** — a reader hitting both will not know whether they join her practice or their own practice brings her in |
 | 8 | Offering descriptions | **Supplied by Dr. Harrington** (16 Sep 2026) and used verbatim |
-| 9 | Announcement bar copy | "Private gynecologic care, delivered on-site at concierge practices across Denver" |
+| 9 | Announcement bar | **Removed 30 Sep 2026.** The espresso bar above the header is gone site-wide; `--announce-h` and the `.announcement` styles were deleted with it. Restoring it means re-adding both to `partials/header.html` and `styles.css` |
 | 10 | Home review carousel ("just the bold text") | The source doc had no bold excerpts, so each slide uses one short **verbatim** sentence from a review. Swap in preferred excerpts in `index.html` |
 | 11 | Page headlines and short section intros not in the source doc (e.g., "Focused care for the transitions that matter") | Drafted in brand voice; edit freely |
 
@@ -354,13 +394,64 @@ Then open http://localhost:3000. Netlify Forms only work on the deployed site; l
 
 | Owner | Task |
 |---|---|
+| Dev/Lauren | **After the Netlify site exists:** set `ADMIN_PASSWORD` in Site configuration → Environment variables. This is the /admin password — use a long random one, not a short shared word; the page lists subscriber names and emails |
+| Dev/Lauren | Set `NETLIFY_API_TOKEN` (a personal access token) so /admin can read form submissions |
+| Dev/Lauren | Set `RESEND_API_KEY` and `RESEND_FROM`, then redeploy — environment changes do not apply to existing deploys |
+| Dev/Lauren | Verify theconciergegynecologist.com in Resend (DKIM/SPF) before the first real send |
 | Lauren | Provide logo files (SVG preferred) to replace the text wordmark |
 | Lauren | Review the stock photo and clip chosen for each slot and flag any that miss |
 | Lauren | Decide whether to commission real photography of Dr. Harrington and partner practices to replace stock |
 | Lauren | Review and approve offering descriptions |
-| Lauren | Draft the automatic welcome email for subscribers (sent via Resend) |
-| Lauren | Create Netlify, GitHub, and Resend accounts using contact@laurenharringtonmd.com |
-| Dev | Connect repo to Netlify; enable form notifications to contact@laurenharringtonmd.com |
-| Dev | Build Resend subscribe function (`netlify/functions/`) once the account exists |
-| Dev | Replace every `.placeholder` block with final assets |
+| Lauren | **"Become a patient" on `/dr-harrington/` opens the Subscribe panel**, not the inquiry form — Saylor's call, 30 Sep 2026. Her own Q&A answer to "How do I become a patient?" says to use Get in Touch instead, so the two routes disagree. Confirm which is right |
+| Lauren | **Write, or approve, per-procedure copy.** The Expertise page now lists Endometrial biopsy, IUD insertion, Colposcopy & LEEP and Hysteroscopy separately, but her source text described them in one sentence — the four descriptions are cut from it rather than written for each |
+| Lauren | **Answer the telehealth question** — *"Can I schedule a virtual visit, or does every appointment need to be in person?"* is the one Q&A held back, pending her actual policy |
+| Lauren | **Two names for the same role.** The home page says "former Director of the **Female** Sexual Health Consultation Service at the University of Colorado"; her own bio on `/dr-harrington/` says "**Women's** Sexual Health Consultation Service". Both are her copy, so neither was changed — pick one and it gets applied in both places |
+| Lauren | The home page band says "Stanford-trained **Menopause Certified Practitioner**"; every other page says "**Menopause Society** Certified Practitioner (MSCP)", which is the credential's formal name. Confirm which the home page should use |
+| Lauren | Decide between "membership practice" and "partnership model" (see §9, row 7) — the home page and the Q&A page currently say different things |
+| Dev | Crop or replace `images/approach/membership.jpg` if the yellow notebook at the bottom reads too saturated against the blush section |
+| Lauren | Review the drafted welcome email copy in `netlify/functions/submission-created.js` and adjust the wording |
+| Lauren | Create Netlify and Resend accounts using contact@theconciergegynecologist.com (GitHub done) |
+| Dev | Connect repo to Netlify; enable form notifications to contact@theconciergegynecologist.com — steps in [docs/LAUNCH-GUIDE.md](docs/LAUNCH-GUIDE.md) |
+| Dev | ~~Build Resend subscribe function~~ — done: `netlify/functions/submission-created.js` |
+| Dev | ~~Replace every `.placeholder` block~~ — done: all pages use real photography |
 | Dev | Add privacy policy page if analytics or subscriber email are enabled |
+| Dev | **SEO/AEO:** build a page per area of expertise (`/expertise/perimenopause/` etc.), 600–900 words, with `MedicalProcedure` schema — highest-value item for both search and answer engines |
+| Lauren | Clinically review the per-offering page copy before it publishes — medical accuracy outranks keywords |
+| Dev | ~~Add FAQ sections with `FAQPage` schema~~ — done: `/questions/` ships ten Q&As with `FAQPage` JSON-LD. Still to add once written: referrals, what an MSCP is, hormone therapy after cancer |
+| Dev | Extend `MedicalBusiness` schema (areaServed, medicalSpecialty, availableService); add `BreadcrumbList` and `dateModified` |
+| Lauren | Decide on local search: set up a Google Business Profile as a service-area business, or accept that local results aren't a channel (there's no public clinic address by design) |
+| Dev | Add `llms.txt` — a short plain-text summary of the practice for AI crawlers |
+| Lauren/Dev | Consider a small article cadence (six pieces would outrank the current site for informational queries) |
+
+---
+
+## 11. SEO & AEO backlog
+
+Audited 29 Sep 2026. Recorded here so the next person doesn't re-derive it.
+
+**Already in place:** unique titles and meta descriptions within length limits on
+every page, one `<h1>` each, canonicals, Open Graph and Twitter tags, a complete
+`sitemap.xml`, `robots.txt` allowing crawl with `/admin` excluded, semantic
+landmarks, real `alt` text, static pages that load fast, and zero accessibility
+violations. Schema: `MedicalBusiness` (home) and `Person` (Dr. Harrington).
+
+**The gaps, in priority order:**
+
+1. **Content depth.** Page bodies run 30–346 words (In Their Words is 863, and that's
+   patient quotes). Competing practices publish 1,500-word service pages. All ten
+   offerings share one page, so each gets about two sentences — no page can rank for
+   "menopause specialist Denver" on its own. A page per offering is the fix.
+2. **Missing structured data.** No `MedicalProcedure`/`Service`, `FAQPage`,
+   `BreadcrumbList`, or review markup.
+3. **No local signals.** No address, phone, or `PostalAddress` — partly inherent, since
+   care happens inside partner practices and there's no clinic address to publish. It
+   does mean local-pack results are closed off without a Google Business Profile. Decide
+   deliberately.
+4. **Nothing aimed at answer engines.** No FAQ content, no question-shaped headings, no
+   `llms.txt`. Note that the offering descriptions sit inside panels using the `hidden`
+   attribute: indexable, but discounted against visible text — and that is exactly the
+   copy an AI would otherwise quote. Per-offering pages solve this too.
+
+**Deliberately not done:** review/`aggregateRating` schema on the patient testimonials.
+Self-serving reviews on your own site aren't eligible for rich results, and marking them
+up invites a manual action. They still carry E-E-A-T weight as plain text.

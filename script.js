@@ -106,6 +106,20 @@
     if (window.location.hash === '#updates') openPanel('updates');
   }
 
+  // ── Shuffle the home review carousel ────────────────────────────────────
+  // The reviews are written into the page oldest-first, so left alone the
+  // carousel always opens on 2022 and the newest quotes never get seen. Shuffle
+  // once per visit, before the rotator reads the track.
+  const reviewTrack = document.querySelector('.reviews__track[data-rotator-track]');
+  if (reviewTrack) {
+    const items = [...reviewTrack.children];
+    for (let i = items.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    reviewTrack.append(...items);
+  }
+
   // ── Rotators ────────────────────────────────────────────────────────────
   // [data-rotator][data-interval="3000"]
   //   [data-rotator-track]      children rotate in lockstep across tracks
@@ -114,6 +128,27 @@
   //   [data-rotator-count]      optional "1 / 7" readout
   // data-bg on the first track's items sets --rotator-bg on the root.
   // data-pause-on-hover pauses while the pointer or focus is inside.
+  // ── Motion switch (WCAG 2.2.2 Pause, Stop, Hide) ────────────────────────
+  // One control stops every auto-advancing rotator on the site; the choice is
+  // remembered so a visitor who stops motion keeps it stopped.
+  const rotatorControls = [];
+  let motionPaused = false;
+  try { motionPaused = localStorage.getItem('tcg-motion') === 'paused'; } catch { /* private mode */ }
+
+  function setMotionPaused(paused) {
+    motionPaused = paused;
+    try { localStorage.setItem('tcg-motion', paused ? 'paused' : 'playing'); } catch { /* ignore */ }
+    document.querySelectorAll('[data-motion-toggle]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(paused));
+      btn.setAttribute('aria-label', paused ? 'Play background motion' : 'Pause background motion');
+    });
+    rotatorControls.forEach((c) => (paused ? c.stop() : c.start()));
+  }
+
+  document.querySelectorAll('[data-motion-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => setMotionPaused(!motionPaused));
+  });
+
   document.querySelectorAll('[data-rotator]').forEach((rotator) => {
     const tracks = [...rotator.querySelectorAll('[data-rotator-track]')];
     const length = tracks[0]?.children.length ?? 0;
@@ -191,7 +226,7 @@
 
     function start() {
       stop();
-      if (reducedMotion || hovering || document.hidden || length < 2) return;
+      if (reducedMotion || motionPaused || hovering || document.hidden || length < 2) return;
       timer = setInterval(() => show(index + 1), interval);
     }
 
@@ -211,55 +246,34 @@
     }
 
     document.addEventListener('visibilitychange', start);
+    rotatorControls.push({
+      start,
+      stop: () => {
+        stop();
+        tracks.forEach((t) => [...t.children].forEach((c) => c.querySelector('video')?.pause()));
+      },
+    });
 
     show(0);
     start();
   });
 
-  // ── Offerings browser ───────────────────────────────────────────────────
-  // [data-offering-toggle] rows control detail panels via aria-controls.
-  // Desktop: one offering is always open, shown in the sticky sidebar.
-  // Mobile: each panel opens beneath its row and rows toggle like an
-  // accordion. /offerings/#<panel-id> opens that offering on load.
-  const offerings = document.querySelector('[data-offerings]');
-  if (offerings) {
-    const toggles = [...offerings.querySelectorAll('[data-offering-toggle]')];
-    const desktop = window.matchMedia('(min-width: 901px)');
-    const panelId = (toggle) => toggle.getAttribute('aria-controls');
-    const isOpen = (toggle) => toggle.getAttribute('aria-expanded') === 'true';
-
-    function setOpen(toggle, open) {
-      toggle.setAttribute('aria-expanded', String(open));
-      document.getElementById(panelId(toggle)).hidden = !open;
-    }
-
-    function select(toggle) {
-      if (isOpen(toggle) && !desktop.matches) {
-        setOpen(toggle, false);
-        return;
-      }
-      toggles.forEach((t) => setOpen(t, t === toggle));
-      history.replaceState(null, '', `#${panelId(toggle)}`);
-      if (!desktop.matches) {
-        toggle.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' });
-      }
-    }
-
-    toggles.forEach((toggle) => toggle.addEventListener('click', () => select(toggle)));
-
-    desktop.addEventListener('change', (e) => {
-      if (e.matches && !toggles.some(isOpen)) setOpen(toggles[0], true);
-    });
-
-    function openFromHash() {
-      const fromHash = toggles.find((t) => `#${panelId(t)}` === window.location.hash);
-      if (!fromHash) return;
-      toggles.forEach((t) => setOpen(t, t === fromHash));
-      (desktop.matches ? offerings : fromHash).scrollIntoView({ block: 'start' });
-    }
-
-    openFromHash();
-    window.addEventListener('hashchange', openFromHash);
+  // ── Deep-linked disclosures ─────────────────────────────────────────────
+  // /expertise/#pelvic-pain and the like should land on an open row. Native
+  // <details> does not open for a fragment in every browser, so nudge it —
+  // and scroll again afterwards, because opening changes the page height.
+  function openHashDisclosure() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target || target.tagName !== 'DETAILS') return;
+    target.open = true;
+    // Opening changes the page height, so place it on the next frame.
+    requestAnimationFrame(() => target.scrollIntoView({ block: 'start', behavior: 'auto' }));
+  }
+  if (document.querySelector('details.disclosure')) {
+    openHashDisclosure();
+    addEventListener('hashchange', openHashDisclosure);
   }
 
   // ── Forms (Netlify Forms via fetch) ─────────────────────────────────────
@@ -285,12 +299,61 @@
         form.reset();
         status.textContent = form.dataset.success || 'Thank you. We’ll be in touch soon.';
       } catch {
-        status.textContent = 'Something went wrong. Please email contact@laurenharringtonmd.com.';
+        status.textContent = 'Something went wrong. Please email contact@theconciergegynecologist.com.';
       } finally {
         submit.disabled = false;
       }
     });
   });
+
+  // ── Parallax bands ──────────────────────────────────────────────────────
+  // Each [data-parallax] section holds a [data-parallax-layer] image that is
+  // taller than the frame (see styles.css) and slides at a fraction of the
+  // scroll rate, so the section reads as a window moving over a near-still
+  // photograph. Only sections on screen are measured, and everything is read
+  // and written inside one rAF so the loop never thrashes layout.
+  const parallaxBands = [...document.querySelectorAll('[data-parallax]')]
+    .map((section) => ({ section, layer: section.querySelector('[data-parallax-layer]') }))
+    .filter((band) => band.layer);
+
+  if (parallaxBands.length && !reducedMotion) {
+    document.documentElement.classList.add('js-parallax');
+
+    const visible = new Set();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      });
+      schedule();
+    }, { rootMargin: '10% 0px' });
+    parallaxBands.forEach(({ section }) => observer.observe(section));
+
+    let ticking = false;
+    function schedule() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(paint);
+    }
+
+    function paint() {
+      ticking = false;
+      const viewportH = window.innerHeight;
+      parallaxBands.forEach(({ section, layer }) => {
+        if (!visible.has(section)) return;
+        const box = section.getBoundingClientRect();
+        // -1 when the section is just below the fold, +1 when just above it
+        const progress = 1 - 2 * ((box.top + box.height / 2) / (viewportH + box.height));
+        // The layer overhangs by 40% top and bottom; stay inside that.
+        const travel = box.height * 0.36;
+        layer.style.transform = `translate3d(0, ${(progress * travel).toFixed(2)}px, 0)`;
+      });
+    }
+
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule, { passive: true });
+    schedule();
+  }
 
   // ── Footer year ─────────────────────────────────────────────────────────
   document.querySelectorAll('[data-year]').forEach((el) => {

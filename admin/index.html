@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin — The Concierge Gynecologist</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@500&family=Instrument+Sans:wght@600&family=Instrument+Serif:ital@0;1&family=Jost:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .admin { max-width: 1040px; margin-inline: auto; padding: clamp(40px, 6vw, 80px) var(--gutter); }
+    .admin__head { display: flex; flex-wrap: wrap; gap: 16px; align-items: baseline; justify-content: space-between; margin-bottom: 40px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 44px; }
+    .stat { padding: 24px; background: var(--cream); border: 1px solid var(--color-line); border-radius: var(--radius); }
+    .stat__n { font-family: var(--font-title); font-size: 3rem; line-height: 1; margin-top: 10px; }
+    .stat__sub { font-size: var(--text-small); color: var(--taupe); margin-top: 8px; }
+    .panel { border-top: 1px solid var(--color-line-strong); padding-top: 28px; margin-bottom: 44px; }
+    .panel__head { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
+    table { width: 100%; border-collapse: collapse; font-size: var(--text-small); }
+    th { text-align: left; font-family: var(--font-subtitle); font-weight: 600; font-size: 0.6875rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--charcoal); padding-bottom: 10px; }
+    td { padding: 12px 12px 12px 0; border-top: 1px solid var(--color-line); vertical-align: top; }
+    td.msg { color: var(--charcoal); max-width: 380px; }
+    .empty { color: var(--taupe); padding: 18px 0; }
+    .note { padding: 20px 24px; background: var(--blush); border-radius: var(--radius); font-size: var(--text-small); line-height: 1.6; }
+    .login { max-width: 400px; margin: clamp(60px, 12vh, 140px) auto; }
+    .error { color: #8c2f1d; font-size: var(--text-small); min-height: 1.4em; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body class="page-admin">
+<main id="main" class="admin">
+
+  <section class="login" id="login">
+    <p class="eyebrow">The Concierge Gynecologist</p>
+    <h1 class="title" style="margin-top:12px">Practice admin</h1>
+    <p class="lede" style="margin:10px 0 28px">Sign in to see the email list and inquiries.</p>
+    <form class="form" id="login-form">
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="form__actions">
+        <button class="button" type="submit" id="login-btn">Sign in</button>
+        <p class="error" id="login-error" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </section>
+
+  <div id="dashboard" hidden>
+    <div class="admin__head">
+      <div>
+        <p class="eyebrow">Practice admin</p>
+        <h1 class="title" style="margin-top:10px">Overview</h1>
+      </div>
+      <button class="button button--ghost" type="button" id="signout">Sign out</button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <p class="eyebrow">Email list</p>
+        <p class="stat__n" id="s-subs">—</p>
+        <p class="stat__sub" id="s-subs-sub"></p>
+      </div>
+      <div class="stat">
+        <p class="eyebrow">Inquiries</p>
+        <p class="stat__n" id="s-inq">—</p>
+        <p class="stat__sub" id="s-inq-sub"></p>
+      </div>
+      <div class="stat">
+        <p class="eyebrow">Opted in via inquiry</p>
+        <p class="stat__n" id="s-opt">—</p>
+        <p class="stat__sub">Ticked the updates box</p>
+      </div>
+      <div class="stat">
+        <p class="eyebrow">Last published</p>
+        <p class="stat__n" id="s-pub" style="font-size:1.5rem">—</p>
+        <p class="stat__sub" id="s-site"></p>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="heading">Email list</h2>
+        <button class="button button--ghost" type="button" id="export-csv">Export CSV</button>
+      </div>
+      <div id="subs-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><h2 class="heading">Recent inquiries</h2></div>
+      <div id="inq-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><h2 class="heading">Visitor traffic</h2></div>
+      <p class="note">
+        Page views aren’t shown here because this site doesn’t collect them. To add traffic numbers, either
+        turn on <strong>Netlify Analytics</strong> (server-side, no cookies, about $9/month — Site configuration →
+        Analytics), or add a privacy-first tool such as <strong>Plausible</strong> or <strong>Fathom</strong>.
+        Both avoid cookie banners. Tell your developer which you’d like and it can be wired in.
+      </p>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'tcg-admin';
+  let data = null;
+
+  const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  function table(entries, kind) {
+    if (!entries.length) return '<p class="empty">Nothing yet.</p>';
+    const rows = entries.slice(0, 100).map((e) => `
+      <tr>
+        <td>${esc(e.name) || '—'}</td>
+        <td><a href="mailto:${esc(e.email)}">${esc(e.email)}</a></td>
+        ${kind === 'inq' ? `<td class="msg">${esc(e.message) || '—'}</td>` : ''}
+        <td>${fmtDate(e.date)}</td>
+      </tr>`).join('');
+    return `<table><thead><tr><th>Name</th><th>Email</th>${kind === 'inq' ? '<th>Message</th>' : ''}<th>Date</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function render(d) {
+    data = d;
+    $('login').hidden = true;
+    $('dashboard').hidden = false;
+    $('s-subs').textContent = d.subscribers.total;
+    $('s-subs-sub').textContent = `${d.subscribers.last30} in the last 30 days`;
+    $('s-inq').textContent = d.inquiries.total;
+    $('s-inq-sub').textContent = `${d.inquiries.last30} in the last 30 days`;
+    $('s-opt').textContent = d.optInCount;
+    $('s-pub').textContent = fmtDate(d.site.lastPublished);
+    $('s-site').textContent = d.site.url ? d.site.url.replace(/^https?:\/\//, '') : '';
+    $('subs-table').innerHTML = table(d.subscribers.entries, 'subs');
+    $('inq-table').innerHTML = table(d.inquiries.entries, 'inq');
+  }
+
+  async function load(password) {
+    const res = await fetch('/.netlify/functions/admin-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const body = await res.json().catch(() => ({ error: 'Unexpected response' }));
+    if (!res.ok) throw new Error(body.error || `Error ${res.status}`);
+    return body;
+  }
+
+  $('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = $('password').value;
+    $('login-btn').disabled = true;
+    $('login-error').textContent = 'Checking…';
+    try {
+      render(await load(pw));
+      sessionStorage.setItem(KEY, pw);
+      $('login-error').textContent = '';
+    } catch (err) {
+      $('login-error').textContent = err.message;
+    } finally {
+      $('login-btn').disabled = false;
+    }
+  });
+
+  $('signout').addEventListener('click', () => {
+    sessionStorage.removeItem(KEY);
+    location.reload();
+  });
+
+  $('export-csv').addEventListener('click', () => {
+    if (!data) return;
+    const rows = [['Name', 'Email', 'Date'], ...data.subscribers.entries.map((e) => [e.name, e.email, e.date])];
+    const csv = rows.map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `email-list-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Resume the session on reload
+  const saved = sessionStorage.getItem(KEY);
+  if (saved) load(saved).then(render).catch(() => sessionStorage.removeItem(KEY));
+})();
+</script>
+</body>
+</html>

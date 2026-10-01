@@ -38,7 +38,7 @@
   /* Type scale (Title > Quote > Heading > Body > Subtitle) */
   --text-display: clamp(3rem, 7vw, 6rem);
   --text-title: clamp(2.5rem, 5vw, 4.25rem);
-  --text-statement: clamp(2.25rem, 4.6vw, 4rem);
+  --text-statement: clamp(3.15rem, 6.44vw, 5.6rem);
   --text-quote: clamp(1.75rem, 3vw, 2.5rem);
   --text-heading: clamp(1.625rem, 2.4vw, 2.125rem);
   --text-heading-sm: 1.5rem;
@@ -54,7 +54,6 @@
   --section-space: clamp(72px, 10vw, 140px);
   --radius: 4px;
 
-  --announce-h: 36px;
   --header-top-h: 76px;
   --header-nav-h: 48px;
   --header-h: calc(var(--header-top-h) + var(--header-nav-h));
@@ -296,24 +295,6 @@ ul, ol { padding: 0; }
   text-transform: uppercase;
 }
 
-/* ── Announcement bar ───────────────────────────────────────────────────── */
-.announcement {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--announce-h);
-  padding-inline: var(--gutter);
-  background: var(--espresso);
-  color: var(--ivory);
-  font-size: 0.8125rem;
-  text-align: center;
-}
-.announcement p {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
 /* ── Header (modeled on aesop.com) ──────────────────────────────────────── */
 .site-header {
   position: sticky;
@@ -359,7 +340,14 @@ ul, ol { padding: 0; }
   text-decoration: none;
   white-space: nowrap;
 }
-.utility-link { font-size: 0.8125rem; }
+.utility-link {
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* Uppercased in CSS, not in the markup, so screen readers still read
+   "Subscribe" as a word rather than spelling it out. */
+.utility-link--strong { font-weight: 700; }
 .utility-text { font-size: 0.8125rem; white-space: nowrap; }
 
 .utility-link::after,
@@ -431,7 +419,7 @@ ul, ol { padding: 0; }
 @media (max-width: 900px) {
   .menu-toggle { display: inline-block; }
   .utility-text,
-  .utility-link--secondary { display: none; }
+  .utility-link--strong { display: none; }
   .wordmark { font-size: 1.1875rem; }
 
   .site-nav {
@@ -464,7 +452,7 @@ ul, ol { padding: 0; }
 /* ── Home: hero ─────────────────────────────────────────────────────────── */
 .hero {
   position: relative;
-  height: calc(100svh - var(--announce-h));
+  height: 100svh;
   min-height: 560px;
   margin-top: calc(-1 * var(--header-h));
   overflow: hidden;
@@ -515,6 +503,34 @@ ul, ol { padding: 0; }
     rgba(31, 23, 17, 0.55) 100%);
 }
 
+.motion-toggle {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(24px, 4vh, 40px);
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 252, 0.5);
+  border-radius: 50%;
+  background: rgba(31, 23, 17, 0.3);
+  color: var(--ivory);
+  transition: background-color var(--duration) var(--ease);
+}
+.motion-toggle:hover { background: rgba(31, 23, 17, 0.55); }
+.motion-toggle--inline {
+  position: static;
+  border-color: var(--color-line-strong);
+  background: transparent;
+  color: var(--espresso);
+}
+.motion-toggle--inline:hover { background: var(--cream); }
+.motion-toggle svg { width: 13px; height: 15px; }
+.motion-toggle .icon-play { display: none; }
+.motion-toggle[aria-pressed="true"] .icon-pause { display: none; }
+.motion-toggle[aria-pressed="true"] .icon-play { display: block; }
+
 .hero__content {
   position: absolute;
   left: 0;
@@ -540,6 +556,89 @@ ul, ol { padding: 0; }
   text-wrap: balance;
 }
 .statement__text em { font-style: italic; }
+
+/* ── Parallax bands (modeled on editorialstockimages.com) ───────────────── */
+/* The background is taller than its frame and slides at a fraction of the
+   scroll rate, so the section reads as a moving window onto a near-stationary
+   photograph. The overhang covers the travel: with no JS the layer just sits
+   centred, so the section is complete either way. Deepening the overhang buys
+   a longer, more dramatic travel — keep travel in script.js below it. */
+[data-parallax] { position: relative; overflow: hidden; }
+[data-parallax] > .container { position: relative; z-index: 1; }
+[data-parallax-layer] {
+  position: absolute;
+  left: 0;
+  top: -40%;
+  width: 100%;
+  height: 180%;
+  object-fit: cover;
+}
+.js-parallax [data-parallax-layer] { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  [data-parallax-layer] { transform: none !important; }
+}
+
+/* ── Home: membership band ──────────────────────────────────────────────── */
+.membership {
+  --color-accent: var(--charcoal);
+  color: var(--espresso);
+  background: var(--cream);
+}
+/* The photograph is open on the right; this wash sits over it so the copy
+   clears AA no matter which part of the frame the parallax brings up. */
+.membership::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right,
+    rgba(255, 255, 252, 0) 0%,
+    rgba(255, 255, 252, 0.28) 30%,
+    rgba(255, 255, 252, 0.7) 52%,
+    rgba(255, 255, 252, 0.86) 100%);
+}
+/* Hold the left edge so the rosehips stay in frame as the band is cropped */
+.membership__bg { object-position: left center; }
+.membership__inner { max-width: 620px; margin-left: auto; }
+@media (max-width: 900px) {
+  /* The band goes full width, so the wash runs top-to-bottom instead — light
+     enough at the top that the rosehips still read, and the crop pulls left
+     so the branch is in frame rather than the blank canvas. */
+  .membership::after {
+    background: linear-gradient(to bottom,
+      rgba(255, 255, 252, 0.34) 0%,
+      rgba(255, 255, 252, 0.78) 34%,
+      rgba(255, 255, 252, 0.86) 100%);
+  }
+  .membership__bg { object-position: 12% center; }
+  .membership__inner { max-width: none; margin-left: 0; }
+  .membership { padding-top: clamp(140px, 30vw, 200px); }
+}
+
+/* ── Home: membership list ──────────────────────────────────────────────── */
+/* Tracked caps at display size, set in Jost rather than the Instrument Sans
+   used by .text-link and .eyebrow. */
+.membership-lead {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(1.125rem, 1.7vw, 1.5rem);
+  line-height: 1.45;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.navigate-list {
+  margin-top: clamp(28px, 3vw, 40px);
+  list-style: none;
+}
+.navigate-list li {
+  padding-block: clamp(14px, 1.6vw, 20px);
+  border-bottom: 1px solid var(--color-line-strong);
+  font-family: var(--font-title);
+  font-size: clamp(1.75rem, 3vw, 2.625rem);
+  line-height: 1.15;
+}
+.navigate-list li:first-child { padding-top: 0; }
+.navigate-list li:last-child { border-bottom: 0; }
+.navigate-list + .button-row { margin-top: clamp(24px, 3vw, 36px); }
 
 /* ── Home: "Care that is" tabs ──────────────────────────────────────────── */
 .care-tabs {
@@ -593,11 +692,13 @@ ul, ol { padding: 0; }
   padding: 13px 0;
   border-bottom: 1px solid var(--color-line);
   text-align: left;
-  color: rgba(31, 23, 17, 0.62);
-  transition: color var(--duration) var(--ease);
+  /* Charcoal clears 4.5:1 on every tint this section cycles through;
+     the earlier faded espresso did not. Active state = weight, not opacity. */
+  color: var(--charcoal);
+  transition: color var(--duration) var(--ease), font-weight var(--duration) var(--ease);
 }
-.care-tabs__tab:hover,
-.care-tabs__tab[aria-pressed="true"] { color: var(--espresso); }
+.care-tabs__tab:hover { color: var(--espresso); }
+.care-tabs__tab[aria-pressed="true"] { color: var(--espresso); font-weight: 500; }
 .care-tabs__tab-index {
   font-family: var(--font-subtitle);
   font-weight: 600;
@@ -609,32 +710,64 @@ ul, ol { padding: 0; }
   .care-tabs__media { aspect-ratio: 4 / 3; }
 }
 
-/* ── Home: offerings preview ────────────────────────────────────────────── */
-.offer-links {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  list-style: none;
-  border-top: 1px solid var(--color-line-strong);
+/* ── Home: physician band ───────────────────────────────────────────────── */
+/* Same tracked-caps Subtitle treatment as .membership-lead, a step larger. */
+.physician-name {
+  margin-top: 18px;
+  font-family: var(--font-subtitle);
+  font-weight: 600;
+  font-size: clamp(1.375rem, 2.2vw, 1.875rem);
+  line-height: 1.3;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
-.offer-links a {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  height: 100%;
-  padding: 20px 16px 20px 0;
-  border-bottom: 1px solid var(--color-line);
-  text-decoration: none;
-  transition: padding var(--duration) var(--ease);
+.physician-bio {
+  margin-top: 24px;
+  font-size: var(--text-lede);
+  line-height: 1.6;
 }
-.offer-links a:hover { padding-left: 8px; }
-.offer-links svg { flex: none; width: 26px; height: 26px; color: var(--taupe); }
-.offer-links__icon { flex: none; width: 30px; height: 30px; object-fit: contain; }
-@media (max-width: 1100px) { .offer-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .offer-links { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── Home: full-bleed feature band ──────────────────────────────────────── */
+.feature-band {
+  --color-accent: var(--charcoal);
+  background: var(--cream);
+  color: var(--espresso);
+}
+.feature-band__bg { object-position: 72% center; }
+/* The wall behind the copy is already light; this only guarantees the worst
+   frame the parallax can bring up. */
+.feature-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right,
+    rgba(255, 255, 252, 0.42) 0%,
+    rgba(255, 255, 252, 0.28) 48%,
+    rgba(255, 255, 252, 0) 72%);
+}
+.feature-band__inner { max-width: 760px; }
+@media (max-width: 900px) {
+  /* Full-width copy has no open column to sit in, so pull the crop onto the
+     plaster and lay an even wash over it. */
+  .feature-band__bg { object-position: 18% center; }
+  .feature-band::after {
+    background: linear-gradient(to bottom,
+      rgba(255, 255, 252, 0.74) 0%,
+      rgba(255, 255, 252, 0.88) 36%,
+      rgba(255, 255, 252, 0.88) 100%);
+  }
+}
+.feature-band__inner .lede { margin-top: 24px; }
+/* The first block is broken by hand into three lines; keep those breaks from
+   producing orphans once the column is narrower than the sentences. */
+@media (max-width: 640px) {
+  .feature-band__inner .lede br { display: none; }
+}
 
 /* ── Home: reviews carousel ─────────────────────────────────────────────── */
 .reviews { text-align: center; }
-.reviews__track { display: grid; margin-top: 32px; }
+.reviews__label { font-size: 0.875rem; letter-spacing: 0.22em; }
+.reviews__track { display: grid; align-items: center; margin-top: 32px; }
 .reviews__item {
   grid-area: 1 / 1;
   opacity: 0;
@@ -683,8 +816,12 @@ ul, ol { padding: 0; }
 .page-hero--media {
   --color-accent: var(--blush);
   position: relative;
+  display: flex;
+  align-items: center;
+  /* Full screen */
+  min-height: 100svh;
   margin-top: calc(-1 * var(--header-h));
-  padding-block: calc(var(--header-h) + clamp(72px, 9vw, 132px)) clamp(64px, 8vw, 116px);
+  padding-block: calc(var(--header-h) + clamp(56px, 7vw, 96px)) clamp(56px, 7vw, 96px);
   overflow: hidden;
   background: var(--espresso);
   color: var(--ivory);
@@ -705,75 +842,8 @@ ul, ol { padding: 0; }
     rgba(31, 23, 17, 0.42) 45%,
     rgba(31, 23, 17, 0.58) 100%);
 }
-.page-hero--media > .container { position: relative; z-index: 1; }
+.page-hero--media > .container { position: relative; z-index: 1; width: 100%; }
 .page-hero--media .lede { color: rgba(255, 255, 252, 0.88); }
-
-/* ── Offerings ──────────────────────────────────────────────────────────── */
-/* Rows sit in column 1; every detail panel spans all rows in column 2 (only
-   the open one renders). Below 900px the grid collapses so each panel falls
-   directly under its row, like an accordion. */
-.offering-browser {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px 16px;
-  align-items: start;
-  scroll-margin-top: calc(var(--header-h) + 24px);
-}
-
-.offering-row {
-  grid-column: 1;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  width: 100%;
-  min-height: 60px;
-  padding: 12px 24px;
-  background: var(--cream);
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  text-align: left;
-  scroll-margin-top: calc(var(--header-h) + 16px);
-  transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease);
-}
-.offering-row:hover { background: var(--ivory); }
-.offering-row[aria-expanded="true"] { background: var(--ivory); border-color: var(--color-line-strong); }
-.offering-row__icon { flex: none; width: 30px; height: 30px; color: var(--taupe); }
-/* Illustrated icons carry their own internal padding, so they sit a touch
-   larger than the line icons they replaced. */
-img.offering-row__icon { width: 38px; height: 38px; object-fit: contain; }
-.offering-row__arrow {
-  flex: none;
-  width: 20px;
-  height: 10px;
-  margin-left: -4px;
-  transition: transform var(--duration) var(--ease);
-}
-.offering-row:hover .offering-row__arrow,
-.offering-row[aria-expanded="true"] .offering-row__arrow { transform: translateX(6px); }
-
-.offering-detail {
-  grid-column: 2;
-  grid-row: 1 / span 10; /* keep in step with the number of offering rows */
-  position: sticky;
-  top: calc(var(--header-h) + 24px);
-  overflow: hidden;
-  background: var(--cream);
-  border-radius: var(--radius);
-}
-.offering-detail__media { aspect-ratio: 16 / 11; overflow: hidden; }
-.offering-detail__media img { width: 100%; height: 100%; object-fit: cover; }
-.offering-detail__body { padding: clamp(28px, 3vw, 40px); }
-.offering-detail__title { margin-top: 12px; font-size: clamp(2.25rem, 3.4vw, 3rem); }
-.offering-detail__body p:not(.eyebrow) { margin-top: 16px; color: var(--charcoal); }
-.offering-detail .button-row { margin-top: 28px; }
-
-@media (max-width: 900px) {
-  .offering-browser { grid-template-columns: minmax(0, 1fr); }
-  .offering-row,
-  .offering-detail { grid-column: 1; grid-row: auto; }
-  .offering-detail { position: static; margin-bottom: 12px; }
-  .offering-detail__media { aspect-ratio: 16 / 9; }
-}
 
 /* ── Care model ─────────────────────────────────────────────────────────── */
 .steps {
@@ -827,16 +897,6 @@ img.offering-row__icon { width: 38px; height: 38px; object-fit: contain; }
 }
 .profile__photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .profile__body .title { margin-top: 16px; }
-.profile__credentials {
-  margin-top: 20px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid var(--color-line-strong);
-  font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: 1.375rem;
-  line-height: 1.4;
-  color: var(--charcoal);
-}
 .profile__body .prose { margin-top: 32px; }
 
 @media (max-width: 900px) {
@@ -863,9 +923,12 @@ img.offering-row__icon { width: 38px; height: 38px; object-fit: contain; }
 .credential-group__summary::-webkit-details-marker { display: none; }
 
 /* Plus that turns into a minus when open */
-.credential-group__icon { position: relative; flex: none; width: 18px; height: 18px; }
+.credential-group__icon,
+.disclosure__icon { position: relative; flex: none; width: 18px; height: 18px; }
 .credential-group__icon::before,
-.credential-group__icon::after {
+.credential-group__icon::after,
+.disclosure__icon::before,
+.disclosure__icon::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -875,8 +938,10 @@ img.offering-row__icon { width: 38px; height: 38px; object-fit: contain; }
   background: currentColor;
   transition: transform var(--duration) var(--ease);
 }
-.credential-group__icon::after { transform: rotate(90deg); }
-.credential-group[open] .credential-group__icon::after { transform: rotate(0deg); }
+.credential-group__icon::after,
+.disclosure__icon::after { transform: rotate(90deg); }
+.credential-group[open] .credential-group__icon::after,
+.disclosure[open] .disclosure__icon::after { transform: rotate(0deg); }
 
 .credential-group__body {
   display: grid;
@@ -925,6 +990,154 @@ img.offering-row__icon { width: 38px; height: 38px; object-fit: contain; }
   .credential-group__body { grid-template-columns: minmax(0, 1fr); }
   .credential-group__body .credential-list { grid-column: 1; }
 }
+
+/* ── Disclosure lists (Q&A and Expertise) ───────────────────────────────── */
+/* Native <details>, so every answer ships in the HTML whether or not it is
+   folded open — search engines and AI assistants read all of it, and the page
+   still works with JavaScript off. Mirrors the credential accordion.
+   A .topic is one titled group; .topic__list holds its .disclosure rows. */
+.topic + .topic { margin-top: clamp(76px, 9vw, 124px); }
+.topic .eyebrow { margin-bottom: 18px; }
+.topic .title { text-wrap: balance; }
+.topic__list { margin-top: clamp(36px, 4vw, 52px); }
+
+.disclosure {
+  interpolate-size: allow-keywords;
+  border-top: 1px solid var(--color-line-strong);
+  /* Deep links land under the sticky header without this */
+  scroll-margin-top: calc(var(--header-h) + 24px);
+}
+.disclosure:last-child { border-bottom: 1px solid var(--color-line-strong); }
+
+.disclosure__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 26px;
+  list-style: none;
+  cursor: pointer;
+  /* Jost, not the usual Crimson Pro heading — these read as labels, and the
+     answer that folds out beneath is set in the same face. Sized a step under
+     --text-heading-sm because the sans has the larger x-height of the two. */
+  font-family: var(--font-body);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.disclosure__summary::-webkit-details-marker { display: none; }
+.disclosure__summary:hover { color: var(--taupe); }
+
+.disclosure__body {
+  max-width: var(--max-width-text);
+  padding-bottom: 34px;
+  /* Fade with the fold so a half-revealed paragraph never sits hard against
+     the clip edge while the height animates. */
+  opacity: 0;
+  transition: opacity 0.25s var(--ease);
+}
+.disclosure[open] .disclosure__body {
+  opacity: 1;
+  transition: opacity 0.35s var(--ease) 0.15s;
+}
+.disclosure__body > * + * { margin-top: 1em; }
+
+/* Smooth fold where supported (Chromium); other browsers open instantly */
+.disclosure::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size 0.45s var(--ease), content-visibility 0.45s allow-discrete;
+}
+.disclosure[open]::details-content { block-size: auto; }
+
+/* ── In Their Words: closing quote band ─────────────────────────────────── */
+/* Pale wall over foliage, so the scrim has to hold the whole frame as the
+   parallax travels — a fixed wash rather than a directional gradient. */
+.quote-band {
+  --color-accent: var(--blush);
+  color: var(--ivory);
+  background: var(--espresso);
+  text-align: center;
+}
+.quote-band__bg { object-position: center center; }
+/* 0.78 is not a taste call: the brightest pixels in this frame sit near
+   sRGB 213, and ivory text needs the composite at or under ~0.18 relative
+   luminance to clear AA. Lighten it and the caption fails. */
+.quote-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 23, 17, 0.78);
+}
+/* Light variant. The linen behind it bottoms out near sRGB 83, which a 0.38
+   ivory wash lifts to roughly 0.40 relative luminance — espresso text lands at
+   7:1 and the charcoal caption at 5.9:1, both clear of AA, with enough of the
+   cloth still showing to read as a photograph. Swap the picture and redo the
+   arithmetic: contrast over an image is reported "incomplete", never failed. */
+.quote-band--light {
+  --color-accent: var(--charcoal);
+  color: var(--espresso);
+  background: var(--cream);
+}
+.quote-band--light::after { background: rgba(255, 255, 252, 0.38); }
+.quote-band--light .quote-band__inner figcaption { color: var(--color-accent); }
+
+.quote-band__inner { max-width: 22em; margin-inline: auto; }
+/* In px, not em: the measure has to hold as the quote's own size changes. */
+.quote-band__inner--wide { max-width: 880px; }
+/* Body face, roman, generous leading. The Quote role (Instrument Serif Italic)
+   is right for a one-line pull quote; across five sentences it stopped being
+   readable, which is the whole job of this block. */
+.quote-band__text {
+  font-family: var(--font-body);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.quote-band__inner .title { font-size: clamp(2rem, 3.6vw, 3.25rem); line-height: 1.12; text-wrap: balance; }
+/* Ivory rather than the section's blush accent — blush does not clear AA
+   against the brightest part of this frame at small sizes. */
+.quote-band__inner figcaption { margin-top: 28px; color: var(--ivory); }
+.quote-band__inner .button-row { justify-content: center; margin-top: clamp(36px, 5vw, 56px); }
+
+/* ── In Their Words: full reviews carousel ─────────────────────────────── */
+/* Same rotator as the home carousel, but these are whole reviews rather than
+   one-line excerpts: body face at lede size, not the display Quote role, and a
+   measure that keeps the longest of them readable. */
+/* The reviews differ wildly in length — one runs about 250 words while most
+   are under 60. Stacked in a single grid cell the section would always be as
+   tall as the longest, leaving thirteen of fourteen floating in dead space.
+   So only the active review is in flow; the rest are taken out of it, and the
+   track's height follows whichever is showing. Chromium animates that height
+   (interpolate-size); elsewhere it steps, which is fine. */
+.reviews--full .reviews__track {
+  interpolate-size: allow-keywords;
+  position: relative;
+  align-items: start;
+  transition: height 0.55s var(--ease);
+}
+.reviews--full .reviews__item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.reviews--full .reviews__item.is-active { position: relative; }
+
+/* Ranged left inside a centred column. The home carousel centres its lines
+   because they are one-sentence excerpts set large; these run to eighteen
+   lines, and centred body copy makes the eye hunt for the start of each one. */
+.reviews--full .reviews__item { text-align: left; }
+/* A px measure, not em: the quote mark is set at 2.75rem, so an em value here
+   would resolve to a different width for it than for the review text and the
+   two would not line up. */
+.reviews--full .reviews__item > * { max-width: var(--max-width-text); margin-inline: auto; }
+.reviews--full .reviews__item blockquote p {
+  font-size: var(--text-lede);
+  line-height: 1.75;
+}
+.reviews--full .testimonial__mark { height: auto; margin-bottom: 4px; font-size: 2.75rem; }
+.reviews--full .reviews__controls { margin-top: 56px; }
 
 /* ── In Their Words ─────────────────────────────────────────────────────── */
 .testimonials {
@@ -1076,7 +1289,8 @@ img.offering-row__icon { width: 38px; height: 38px; object-fit: contain; }
   gap: 48px;
 }
 .site-footer .wordmark { font-size: 2rem; }
-.site-footer__tagline { max-width: 30em; margin-top: 16px; font-size: var(--text-small); color: rgba(255, 255, 252, 0.72); }
+.site-footer__place { margin-top: 14px; font-size: var(--text-small); color: rgba(255, 255, 252, 0.88); }
+.site-footer__tagline { max-width: 30em; margin-top: 12px; font-size: var(--text-small); color: rgba(255, 255, 252, 0.72); }
 .site-footer .eyebrow { margin-bottom: 16px; }
 .site-footer__list { display: grid; gap: 8px; list-style: none; font-size: var(--text-small); }
 .site-footer__list a { text-decoration: none; color: rgba(255, 255, 252, 0.85); }

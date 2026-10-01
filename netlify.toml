@@ -2,7 +2,7 @@
 # https://docs.netlify.com/configure-builds/file-based-configuration/
 #
 # Plain static site — no build step. Every page is a real file in its own
-# folder (/offerings/index.html, /care-model/index.html, ...), so no SPA
+# folder (/expertise/index.html, /questions/index.html, ...), so no SPA
 # fallback redirect is needed. Unknown URLs get /404.html.
 
 [build]
@@ -34,6 +34,13 @@
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Keep the admin page out of search results entirely
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
 
 # ── Security headers
 [[headers]]
