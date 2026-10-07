@@ -28,6 +28,10 @@
 <!-- partial:header -->
 <a class="skip-link" href="#main">Skip to content</a>
 
+<div class="announcement" role="region" aria-label="Announcement">
+  <p>A membership-based boutique gynecology practice in Denver, Colorado providing specialized care for women in hormonal transitions.</p>
+</div>
+
 <header class="site-header" data-header>
   <div class="site-header__top">
     <div class="site-header__utility">
@@ -53,7 +57,11 @@
       <li><a class="site-nav__link" href="/dr-harrington/">Dr. Harrington</a></li>
       <li><a class="site-nav__link" href="/questions/">Q&amp;A</a></li>
       <li><a class="site-nav__link" href="/in-their-words/">In Their Words</a></li>
+      <!-- Below 900px the utility row has no space for these, so the menu
+           carries them. Plain links, not panel triggers: a slide-out panel
+           over an already full-screen menu is a poor place to land. -->
       <li class="site-nav__mobile-only"><a class="site-nav__link" href="/inquire/">Get in touch</a></li>
+      <li class="site-nav__mobile-only"><a class="site-nav__link" href="/stay-in-touch/">Subscribe</a></li>
     </ul>
   </nav>
 </header>
@@ -65,8 +73,7 @@
     <div class="container">
       <div class="page-hero__inner">
         <p class="eyebrow">Expertise</p>
-        <h1 class="title">Focused care for the transitions that matter</h1>
-        <p class="lede">From the first signs of perimenopause to life after cancer treatment, every concern is met with time, evidence, and a physician who knows your history.</p>
+        <h1 class="title">Personalized gynecology care for every stage of life.</h1>
       </div>
     </div>
   </section>
@@ -74,12 +81,12 @@
   <!-- Descriptions are Dr. Harrington's own words — quote them verbatim and
        don't paraphrase. Each row keeps its id so /expertise/#<id> still deep
        links; script.js opens the matching row on load. -->
-  <section class="section" aria-labelledby="hormonal-health-title">
+  <section class="section section--tight-top" aria-labelledby="hormonal-health-title">
     <div class="container">
       <div class="topic">
         <h2 class="title" id="hormonal-health-title">Hormonal health</h2>
 
-        <div class="topic__list">
+        <div class="topic__list" data-hover-open>
           <details class="disclosure" id="perimenopause">
             <summary class="disclosure__summary">
               Perimenopause
@@ -104,7 +111,7 @@
               <span class="disclosure__icon" aria-hidden="true"></span>
             </summary>
             <div class="disclosure__body prose">
-              <p>Expert, sensitive and effective care for changes in libido, comfort, orgasm and sexual function at any life stage.</p>
+              <p>Expert, sensitive and effective care for changes in desire, comfort, orgasm and sexual function at any life stage.</p>
             </div>
           </details>
         </div>
@@ -112,7 +119,7 @@
       <div class="topic">
         <h2 class="title" id="cancer-title">Cancer survivorship &amp; risk</h2>
 
-        <div class="topic__list">
+        <div class="topic__list" data-hover-open>
           <details class="disclosure" id="cancer-survivorship">
             <summary class="disclosure__summary">
               Cancer survivorship
@@ -136,7 +143,7 @@
       <div class="topic">
         <h2 class="title" id="conditions-title">Gynecologic conditions</h2>
 
-        <div class="topic__list">
+        <div class="topic__list" data-hover-open>
           <details class="disclosure" id="abnormal-uterine-bleeding">
             <summary class="disclosure__summary">
               Abnormal uterine bleeding
@@ -178,7 +185,7 @@
       <div class="topic">
         <h2 class="title" id="procedures-title">Procedures</h2>
 
-        <div class="topic__list">
+        <div class="topic__list" data-hover-open>
           <details class="disclosure" id="endometrial-biopsy">
             <summary class="disclosure__summary">
               Endometrial biopsy
@@ -221,12 +228,8 @@
   </section>
 
   <section class="section section--cream">
-    <div class="container split">
-      <!-- TODO: Lauren to provide photo for this section -->
-      <div class="media-frame">
-        <img src="/images/team/dr-lauren-harrington.jpg" alt="Dr. Lauren Harrington" width="1024" height="1536" loading="lazy">
-      </div>
-      <div class="split__content">
+    <div class="container">
+      <div class="section-intro section-intro--center">
         <p class="eyebrow">On-site care</p>
         <h2 class="title">Seen where you already receive care</h2>
         <div class="prose">

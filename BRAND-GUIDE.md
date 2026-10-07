@@ -159,12 +159,13 @@ Same-week appointments, direct access…       ← body (Jost)
 ## 6. Components
 
 ### Header (modeled on aesop.com)
-Two stacked layers (an announcement bar above them was removed on 2026-09-30):
-1. **Top row**: 3-column grid. Left: location text (desktop) / menu button (mobile). Center: wordmark → home. Right: **"SUBSCRIBE"** (bold) and **"GET IN TOUCH"** — 0.8125rem, uppercased in CSS (`text-transform`, not in the markup, so screen readers read them as words). They run one step below `.site-nav__link`'s 0.9375rem because uppercase reads larger at the same size; the two should look level. "SUBSCRIBE" is Jost **700** — the only place the site uses that weight, which is why every page's Google Fonts URL carries `Jost:wght@400;500;700`. Both open the Inquire panel.
-2. **Nav row**: centered links: Expertise · Dr. Harrington · Q&A · In Their Words. Active page gets a 1px underline (`aria-current="page"`). Hover draws the underline in from the left.
+Three stacked layers:
+1. **Announcement bar**: espresso background, one ivory line, centered — *"A membership-based boutique gynecology practice in Denver, Colorado providing specialized care for women in hormonal transitions."* Removed 2026-09-30, restored 2026-10-07 with this copy. It is long enough to wrap on a phone, so unlike the original it is not clamped to one line with an ellipsis. **`--announce-h` has to match the height it actually takes** — 44px desktop, 60px below 900px — because the full-screen heroes subtract it so they still end exactly at the fold. Change the copy or the type size and re-measure both.
+2. **Top row**: 3-column grid. Left: location text (desktop) / menu button (mobile). Center: wordmark → home. Right: **"SUBSCRIBE"** (bold) and **"GET IN TOUCH"** — 0.8125rem, uppercased in CSS (`text-transform`, not in the markup, so screen readers read them as words). They run one step below `.site-nav__link`'s 0.9375rem because uppercase reads larger at the same size; the two should look level. "SUBSCRIBE" is Jost **700** — the only place the site uses that weight, which is why every page's Google Fonts URL carries `Jost:wght@400;500;700`. Both open the Inquire panel.
+3. **Nav row**: centered links: Expertise · Dr. Harrington · Q&A · In Their Words. Active page gets a 1px underline (`aria-current="page"`). Hover draws the underline in from the left. Below 900px this becomes the full-screen menu and also carries **Get in touch** and **Subscribe** (`.site-nav__mobile-only`), because the utility row has no space for them there — "SUBSCRIBE" is hidden outright at that width. They are plain links in the menu, not panel triggers: a slide-out panel over an already full-screen menu is a poor place to land.
 
 Behavior:
-- Header is `position: sticky`.
+- Header is `position: sticky`. The announcement bar scrolls away; the header stays.
 - **Home page only:** the header starts transparent with ivory text over the hero video, then turns solid ivory with espresso text on scroll or hover (the MD2 color change).
 - **Below 900px:** nav row collapses into a full-screen menu opened by the menu button.
 
@@ -186,11 +187,14 @@ Behavior:
 One shared component, used by both pages. A `.topic` is a titled group; its `.topic__list` holds `.disclosure` rows, which are native `<details>`/`<summary>`: label on the left, plus/minus on the right, hairline borders between rows, the same fold as the credential groups. The labels are **Jost at 1.375rem** — the body face, matching the answer that folds out beneath, and a step under `--text-heading-sm` because the sans has the larger x-height. Deliberately not the Crimson Pro used by the credential groups on `/dr-harrington/`, and set once for both pages.
 
 - **No JavaScript is required.** Every answer ships in the HTML whether folded or not, which is what lets search engines and assistants read all of it.
+- **Hover to open** on a list marked `data-hover-open` (Expertise, and the credential groups on Dr. Harrington): the pointer previews a row, leaving closes it, clicking — or Enter, which fires a click on a `<summary>` — pins it open, and clicking again closes it. Only on `(hover: hover) and (pointer: fine)`; a touch device keeps the plain tap behaviour, since a hover it cannot perform would put the content out of reach. Esc dismisses.
+
+**Rows open in one frame. Do not re-animate the fold.** Both the disclosure rows and the credential groups used to animate `block-size` from 0 with the body fading in. Two artifacts came out of it, and they pull against each other: with a delay on the fade, the row sat open and *empty* for the first ~80ms, so all you saw was the next row's border floating in a blank box; with no delay, the clip edge arrived mid-sentence while that same border sat directly beneath it, reading as a rule struck through the words. Both were caught on frame-by-frame recordings of a real hover. Nothing can be mistimed if nothing animates, so neither property transitions now. The plus/minus still turns, which is enough to keep the control from feeling dead.
 - Each row carries an `id`, so `/expertise/#pelvic-pain` deep-links to it. Native `<details>` does not open for a fragment in every browser, so `script.js` opens the match and re-scrolls on the next frame (opening changes the page height); `scroll-margin-top` clears the sticky header.
 - This replaced the asktia-style **offerings browser** (icon rows plus a sticky photo panel) on 2026-09-30, along with the ten illustrated icons and ten offering photographs on that page. All of it is in git history — markup, `.offering-*` and `.offer-links` CSS, and the `data-offerings` block in `script.js`. The image and icon files are still in the repo, now unused.
 
 ### Credential groups (Dr. Harrington page)
-Native `<details>`/`<summary>` rows, closed by default: Crimson Pro heading on the left, a plus/minus icon on the right, hairline borders between groups. The list sits in the right two-thirds when open. Opening animates in Chromium browsers and is instant elsewhere; no JavaScript is involved.
+Native `<details>`/`<summary>` rows, closed by default: Crimson Pro heading on the left, a plus/minus icon on the right, hairline borders between groups. The list sits in the right two-thirds when open. The group opens in one frame — see §6 for why it is not animated — and hover opens it, since the list carries `data-hover-open`.
 
 ### Parallax bands (modeled on editorialstockimages.com)
 Any section marked `data-parallax` holds a `[data-parallax-layer]` image that overhangs its frame by 12% top and bottom and slides at a fraction of the scroll rate, so the section reads as a window moving over a near-stationary photograph. Used on the home page's membership band and "Ready for a different type of care?".
@@ -234,10 +238,15 @@ Each page lives in its own folder as `index.html`, so URLs are clean (`/expertis
 3. **Membership band.** Full-bleed parallax band over `images/sections/membership.jpg` (rosehips on a linen backdrop). The photograph is open on the right, which is where the copy sits; `.membership::after` lays an ivory wash left-to-right so espresso type clears AA wherever the parallax brings the frame. Below 900px the wash runs top-to-bottom instead and the crop pulls left (`object-position: 12% center`) so the branch stays in frame. Copy: *"A membership practice in the Denver metro area for women as they navigate:"* set in **Jost, tracked caps, at display size** (`.membership-lead`), followed by five large Instrument Serif rows — Perimenopause · Menopause · Sexual Health · Cancer Survivorship · Previvor Surveillance — and an "Areas of expertise →" link. This replaced the rotating **"Care that is ___"** panel on 2026-09-30; that markup is in git history and its `.care-tabs` styles are still in `styles.css` if it returns. The split-layout version that stood here briefly used `images/approach/membership.jpg` (a mirrored portrait) — that file is still in the repo but unused.
 4. **Meet your physician.** Espresso band (`.section--dark`), ivory text. The portrait's own dark studio backdrop runs into the section background, which is the point. The name (`.physician-name`) uses the same tracked-caps Subtitle treatment as `.membership-lead`, one step larger; the one-sentence bio (`.physician-bio`) is Jost at lede size; then "Read her story →".
 5. **Ready for a different type of care?** Full-bleed parallax band over `images/sections/ready-for-different-care.jpg` — blush plaster, subject held to the right by `object-position: 72%`, copy on the open wall at left. **This band is light, not dark**: espresso text on an ivory wash that fades out to the right. It replaced a dark foliage crop (`what-makes-us-different.jpg`, deleted; regenerate from `images/originals/haute-stock-flora-collection-final-14.jpg` if wanted). Below 900px the copy runs full width, so the crop pulls onto the plaster (`object-position: 18%`) and the wash goes top-to-bottom. The opening block is broken by hand into three lines with `<br>`; those breaks are suppressed below 640px, where the sentences already wrap. Replaced the ten-item expertise preview on 2026-09-30; that list is in git history. Headed *"Ready for a different type of care?"*. Copy names the MSCP credential and the University of Colorado directorship — **factual claims about Dr. Harrington, so they need her sign-off before launch.**
-6. **Reviews carousel.** At the bottom; cycles through one short verbatim sentence from each review. The quotes are written into the HTML oldest-first, and `script.js` **shuffles the track once per visit** before the rotator reads it — otherwise the carousel always opened on 2022 and the newest quotes were never seen. Remove that block to restore chronological order.
+6. **Want to learn more?** Closing call to action over `images/sections/learn-more.jpg`, another light parallax band, with a single button to `/expertise/`. Sits below the reviews, between them and the footer.
+7. **Reviews carousel.** Above it; cycles through one short verbatim sentence from each review. The quotes are written into the HTML oldest-first, and `script.js` **shuffles the track once per visit** before the rotator reads it — otherwise the carousel always opened on 2022 and the newest quotes were never seen. Remove that block to restore chronological order.
 
 ### Expertise
-Full-screen image header, then four titled groups of disclosure rows (see §6). No icons, no photographs — the list is the page. The "On-site care" section (photo, partnership summary, Get in touch) sits below it at the bottom.
+Full-screen image header — *"Personalized gynecology care for every stage of life."*, no supporting line under it — then four titled groups of disclosure rows (see §6). No icons, no photographs — the list is the page. The "On-site care" section (photo, partnership summary, Get in touch) sits below it at the bottom.
+
+The hero photograph is pulled to `object-position: left center` on this page only: in the default centre crop the subject stands directly behind the headline. The list sits close under it (`.section--tight-top`) rather than a full section's padding down.
+
+The closing "On-site care" block is centred copy with no photograph — the portrait that stood there was a placeholder of Dr. Harrington carried over from an earlier layout.
 
 1. **Hormonal health** — Perimenopause · Menopause · Sexual function
 2. **Cancer survivorship & risk** — Cancer survivorship · Previvor surveillance
@@ -249,14 +258,16 @@ Full-screen image header, then four titled groups of disclosure rows (see §6). 
 ### Q&A
 Replaced the Care Model page on 2026-09-30 (that page's markup is in git history at `care-model/index.html`). Full-screen image header, then three groups of native `<details>` accordions — **The practice**, **Care and treatment**, **Alongside your other care** — closed by default, same plus/minus fold as the credential groups.
 
-Eight questions, **Dr. Harrington's own answers, first person, verbatim** (supplied 30 Sep 2026). The scaffold questions that stood here before were replaced wholesale — they were third-person and written from other pages' copy; they are in git history if any are wanted back.
+Eight questions, **Dr. Harrington's own answers, verbatim** (supplied 30 Sep 2026, revised 5 Oct 2026). The scaffold questions that stood here before were replaced wholesale; they are in git history if any are wanted back.
+
+**The answers are split between two voices.** Insurance, office, hormone philosophy and scope of care speak about her in the third person ("Dr. Harrington does not accept insurance"); keeping your own physician, online platforms, timing and becoming a patient speak as her ("see me", "I'm glad to coordinate"). That is how the copy was supplied, so it was left alone — see §10.
 
 Every answer is also written into a `FAQPage` JSON-LD block in `<head>`, word for word. **Edit both or the schema goes stale.** Because the answers ship in the HTML whether folded or not, search engines and AI assistants read all of them — this is the site's main AEO asset.
 
 **Not published:** *"Can I schedule a virtual visit, or does every appointment need to be in person?"* came with no answer — the source note says the telehealth policy is undecided. A question with no answer, or a guessed one, is worse than a missing question on a medical site. See §10.
 
 ### Dr. Harrington
-Layout modeled on parsleyhealth.com/robin-berzin-md: large portrait beside the bio, then three foldable credential groups, **Education & Training**, **Memberships**, **Awards** (years right-aligned), closed until clicked.
+Layout modeled on parsleyhealth.com/robin-berzin-md: large portrait beside the bio, then four foldable credential groups, **Education & Training**, **Memberships**, **Awards**, **Presentations** (years right-aligned), closed until hovered or clicked — the list carries `data-hover-open` (see §6). Presentations with several venues stack a `.credential-list__detail` line each and carry a year range in the right column.
 
 The page closes on a light quote band (`.quote-band--light`, `images/sections/founder-quote.jpg`) carrying her founder's statement in **Instrument Serif Italic** — the brand's Quote role — attributed "— Dr. Lauren Harrington, MD, MSCP". Same component as the closing band on In Their Words, light variant: the photograph is near-white, so a `rgba(255, 255, 252, 0.5)` wash both lifts its few dark pixels clear of espresso text and mutes the crosswalk pattern behind a long quote.
 
@@ -265,8 +276,7 @@ The three-paragraph bio is **Dr. Harrington's own copy** (supplied 30 Sep 2026) 
 ### In Their Words
 Fourteen patient reviews, quoted verbatim, **one at a time in a carousel** — the same rotator as the home page, on a 9s interval because these are whole reviews rather than one-line excerpts. Replaced a two-column grid of all fourteen on 2026-09-30.
 
-- Body face at lede size, **ranged left inside a centred 680px column**. The home carousel centres its lines because they are short and set large; these run to eighteen, and centred body copy makes the eye hunt for the start of each one.
-- The measure is in px, not em. The quote mark is set at 2.75rem, so an em value resolves to a different width for it than for the review text and the two stop lining up.
+- Body face at `clamp(1.25rem, 1.9vw, 1.625rem)`, **ranged left inside a centred 820px column**. The column is in px rather than em so the measure holds as the type size changes, and so the quote mark — set at 2.75rem — lines up with the review text instead of resolving to its own width. The home carousel centres its lines because they are short and set large; these run to eighteen, and centred body copy makes the eye hunt for the start of each one.
 - The reviews differ wildly in length — one runs about 250 words, most are under 60. Stacked in one grid cell the section would always be as tall as the longest, so **only the active review is in flow** and the track's height follows it. Chromium animates that height (`interpolate-size`); elsewhere it steps.
 - Controls are prev / count / next plus the **site-wide motion switch** (`.motion-toggle--inline`), which WCAG 2.2.2 requires for anything that advances on its own — the home hero's toggle and this one are the same control and share their state.
 - All fourteen stay in the HTML, so search engines read every review; the rotator sets `aria-hidden` on the inactive ones so screen readers hear only the current one.
@@ -384,7 +394,7 @@ Then open http://localhost:3000. Netlify Forms only work on the deployed site; l
 | 6 | Sample quotes from the type-system doc ("I don't want you to just get through this decade…") | **Not used on the site** until Dr. Harrington confirms they're her words |
 | 7 | "Membership" vs. "partnership" language | **Both are now on the site.** The home page says "A membership practice in the Denver metro area" (Saylor's copy, 30 Sep 2026); the Q&A page and the Expertise footer still describe a partnership model delivered inside concierge primary care practices. **Dr. Harrington should pick one frame** — a reader hitting both will not know whether they join her practice or their own practice brings her in |
 | 8 | Offering descriptions | **Supplied by Dr. Harrington** (16 Sep 2026) and used verbatim |
-| 9 | Announcement bar | **Removed 30 Sep 2026.** The espresso bar above the header is gone site-wide; `--announce-h` and the `.announcement` styles were deleted with it. Restoring it means re-adding both to `partials/header.html` and `styles.css` |
+| 9 | Announcement bar | Removed 30 Sep 2026, **restored 7 Oct 2026** with new copy (see §6, Header) |
 | 10 | Home review carousel ("just the bold text") | The source doc had no bold excerpts, so each slide uses one short **verbatim** sentence from a review. Swap in preferred excerpts in `index.html` |
 | 11 | Page headlines and short section intros not in the source doc (e.g., "Focused care for the transitions that matter") | Drafted in brand voice; edit freely |
 
@@ -402,8 +412,10 @@ Then open http://localhost:3000. Netlify Forms only work on the deployed site; l
 | Lauren | Review the stock photo and clip chosen for each slot and flag any that miss |
 | Lauren | Decide whether to commission real photography of Dr. Harrington and partner practices to replace stock |
 | Lauren | Review and approve offering descriptions |
+| Lauren | "Sexual function" now reads **desire** rather than *libido* (7 Oct 2026, at her direction) — the one place her verbatim descriptions have been edited |
 | Lauren | **"Become a patient" on `/dr-harrington/` opens the Subscribe panel**, not the inquiry form — Saylor's call, 30 Sep 2026. Her own Q&A answer to "How do I become a patient?" says to use Get in Touch instead, so the two routes disagree. Confirm which is right |
 | Lauren | **Write, or approve, per-procedure copy.** The Expertise page now lists Endometrial biopsy, IUD insertion, Colposcopy & LEEP and Hysteroscopy separately, but her source text described them in one sentence — the four descriptions are cut from it rather than written for each |
+| Lauren | **Pick one voice for the Q&A.** Four answers are third person about Dr. Harrington, four speak as her; a reader opening two in a row will notice. Both are her copy, so neither was changed |
 | Lauren | **Answer the telehealth question** — *"Can I schedule a virtual visit, or does every appointment need to be in person?"* is the one Q&A held back, pending her actual policy |
 | Lauren | **Two names for the same role.** The home page says "former Director of the **Female** Sexual Health Consultation Service at the University of Colorado"; her own bio on `/dr-harrington/` says "**Women's** Sexual Health Consultation Service". Both are her copy, so neither was changed — pick one and it gets applied in both places |
 | Lauren | The home page band says "Stanford-trained **Menopause Certified Practitioner**"; every other page says "**Menopause Society** Certified Practitioner (MSCP)", which is the credential's formal name. Confirm which the home page should use |

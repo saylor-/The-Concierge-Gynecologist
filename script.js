@@ -258,6 +258,57 @@
     start();
   });
 
+  // ── Hover-opening disclosures ───────────────────────────────────────────
+  // On a list marked [data-hover-open], moving the pointer over a row previews
+  // its description and leaving closes it again. Clicking (or Enter, which
+  // fires a click on a <summary>) pins it open so it survives the pointer
+  // leaving; clicking again closes it. Only on devices that actually hover —
+  // a touch device keeps the plain tap behaviour, because a hover it cannot
+  // perform would put the content out of reach.
+  //
+  // WCAG 1.4.13 asks that content shown on hover be hoverable (the panel opens
+  // directly under the row the cursor is already on, inside the same element),
+  // dismissible (Esc) and persistent (it stays while the pointer is inside).
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+
+  document.querySelectorAll('[data-hover-open]').forEach((list) => {
+    list.querySelectorAll('details').forEach((row) => {
+      const summary = row.querySelector('summary');
+      let pinned = null;   // null = follow the pointer, true = held open, false = held shut
+      let inside = false;
+
+      const sync = () => { row.open = pinned === null ? inside : pinned; };
+
+      summary.addEventListener('click', (event) => {
+        if (!finePointer.matches) return; // touch: let <details> do its own thing
+        event.preventDefault();
+        pinned = pinned === true ? false : true;
+        sync();
+      });
+
+      row.addEventListener('pointerenter', (event) => {
+        if (event.pointerType !== 'mouse' || !finePointer.matches) return;
+        inside = true;
+        sync();
+      });
+
+      row.addEventListener('pointerleave', (event) => {
+        if (event.pointerType !== 'mouse' || !finePointer.matches) return;
+        inside = false;
+        if (pinned === false) pinned = null; // a held-shut row goes back to hovering
+        sync();
+      });
+
+      row.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !row.open) return;
+        pinned = false;
+        inside = false;
+        sync();
+        summary.focus();
+      });
+    });
+  });
+
   // ── Deep-linked disclosures ─────────────────────────────────────────────
   // /expertise/#pelvic-pain and the like should land on an open row. Native
   // <details> does not open for a fragment in every browser, so nudge it —

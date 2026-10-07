@@ -45,6 +45,10 @@
 <!-- partial:header -->
 <a class="skip-link" href="#main">Skip to content</a>
 
+<div class="announcement" role="region" aria-label="Announcement">
+  <p>A membership-based boutique gynecology practice in Denver, Colorado providing specialized care for women in hormonal transitions.</p>
+</div>
+
 <header class="site-header" data-header>
   <div class="site-header__top">
     <div class="site-header__utility">
@@ -70,7 +74,11 @@
       <li><a class="site-nav__link" href="/dr-harrington/">Dr. Harrington</a></li>
       <li><a class="site-nav__link" href="/questions/">Q&amp;A</a></li>
       <li><a class="site-nav__link" href="/in-their-words/">In Their Words</a></li>
+      <!-- Below 900px the utility row has no space for these, so the menu
+           carries them. Plain links, not panel triggers: a slide-out panel
+           over an already full-screen menu is a poor place to land. -->
       <li class="site-nav__mobile-only"><a class="site-nav__link" href="/inquire/">Get in touch</a></li>
+      <li class="site-nav__mobile-only"><a class="site-nav__link" href="/stay-in-touch/">Subscribe</a></li>
     </ul>
   </nav>
 </header>
@@ -235,6 +243,21 @@
         </button>
       </div>
       <a class="text-link reviews__more" href="/in-their-words/">Read all reviews</a>
+    </div>
+  </section>
+
+  <!-- Closing call to action. Same parallax band as the others; the photograph
+       is pale, so this is the light treatment — espresso type over an ivory
+       wash that lifts the darkest capsule shadows clear of AA. -->
+  <section class="section cta-band" data-parallax aria-labelledby="learn-more-title">
+    <img class="cta-band__bg" data-parallax-layer src="/images/sections/learn-more.jpg" alt="" width="2000" height="1212" loading="lazy">
+    <div class="container">
+      <div class="section-intro section-intro--center">
+        <h2 class="title" id="learn-more-title">Want to learn more?</h2>
+        <div class="button-row">
+          <a class="button" href="/expertise/">Areas of expertise</a>
+        </div>
+      </div>
     </div>
   </section>
 </main>

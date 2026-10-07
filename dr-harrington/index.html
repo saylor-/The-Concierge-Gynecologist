@@ -62,6 +62,10 @@
 <!-- partial:header -->
 <a class="skip-link" href="#main">Skip to content</a>
 
+<div class="announcement" role="region" aria-label="Announcement">
+  <p>A membership-based boutique gynecology practice in Denver, Colorado providing specialized care for women in hormonal transitions.</p>
+</div>
+
 <header class="site-header" data-header>
   <div class="site-header__top">
     <div class="site-header__utility">
@@ -87,7 +91,11 @@
       <li><a class="site-nav__link" href="/dr-harrington/" aria-current="page">Dr. Harrington</a></li>
       <li><a class="site-nav__link" href="/questions/">Q&amp;A</a></li>
       <li><a class="site-nav__link" href="/in-their-words/">In Their Words</a></li>
+      <!-- Below 900px the utility row has no space for these, so the menu
+           carries them. Plain links, not panel triggers: a slide-out panel
+           over an already full-screen menu is a poor place to land. -->
       <li class="site-nav__mobile-only"><a class="site-nav__link" href="/inquire/">Get in touch</a></li>
+      <li class="site-nav__mobile-only"><a class="site-nav__link" href="/stay-in-touch/">Subscribe</a></li>
     </ul>
   </nav>
 </header>
@@ -115,7 +123,7 @@
   </div>
 
   <!-- Credential groups are native <details> so they fold open without JS -->
-  <div class="container credentials">
+  <div class="container credentials" data-hover-open>
     <details class="credential-group">
       <summary class="credential-group__summary">
         <h2 class="heading heading--sm">Education &amp; Training</h2>
@@ -162,6 +170,22 @@
           <li><span>Society for Academic Specialists in OB/GYN Residency Program Award</span><span class="credential-list__meta">2018</span></li>
           <li><span>Society for Maternal-Fetal Medicine Residency Program Award for Excellence in Obstetrics</span><span class="credential-list__meta">2018</span></li>
           <li><span>Stanford University Ryan Program Award for Excellence in Family Planning</span><span class="credential-list__meta">2016</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="credential-group">
+      <summary class="credential-group__summary">
+        <h2 class="heading heading--sm">Presentations</h2>
+        <span class="credential-group__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="credential-group__body">
+        <ul class="credential-list">
+          <li><span>Reframing Female Sexual Function: From Silence to Standard of Care<span class="credential-list__detail">Society for Academic Specialists in General Obstetrics and Gynecology Annual Meeting</span></span><span class="credential-list__meta">Sept 2025</span></li>
+          <li><span>Trauma Responsive Care in Obstetrics and Gynecology<span class="credential-list__detail">Oral presentation at the National Perinatal Association, with Winnifred Hunter, PhD · Anaheim, CA</span></span><span class="credential-list__meta">May 2024</span></li>
+          <li><span>Female Sexual Medicine<span class="credential-list__detail">University of Colorado Vail OB/GYN Conference · Vail, CO</span></span><span class="credential-list__meta">Feb 2024</span></li>
+          <li><span>Female Sexual Health and Dysfunction<span class="credential-list__detail">CU School of Medicine, first-year medical student lecture: 2023, 2024, 2025</span><span class="credential-list__detail">CU Radiation Oncology resident lecture: 2023, 2024</span><span class="credential-list__detail">Rose resident lecture: 2021, 2022</span></span><span class="credential-list__meta">2021–2025</span></li>
+          <li><span>Female Orgasm Dysfunction<span class="credential-list__detail">CU OB/GYN resident lecture</span></span><span class="credential-list__meta">2025</span></li>
         </ul>
       </div>
     </details>
