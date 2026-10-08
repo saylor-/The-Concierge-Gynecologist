@@ -446,8 +446,10 @@ ul, ol { padding: 0; }
 
 @media (max-width: 900px) {
   .menu-toggle { display: inline-block; }
+  /* Only one utility link fits beside the wordmark at this width, and it is
+     Subscribe. Get in touch is still in the menu, alongside it. */
   .utility-text,
-  .utility-link--strong { display: none; }
+  .utility-link:not(.utility-link--strong) { display: none; }
   .wordmark { font-size: 1.1875rem; }
 
   .site-nav {
